@@ -1,0 +1,27 @@
+.s1 {
+    display: flex; /* or grid */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Full viewport height */
+    background-color: #090909; /* Example background color */
+  }
+  
+  h1 {
+    font-size: 4rem;  
+  }
+  
+  /* Gradient text styles */
+  .grad {
+    background: linear-gradient(to right, #ff0000, #ffa500, #ffff00, #008000, #0000ff, #4b0082, #ee82ee);
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 200% auto;
+    animation: gradientAnimation 5s linear infinite;
+  }
+  
+  /* Keyframes */
+  @keyframes gradientAnimation {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+  
