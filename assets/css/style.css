@@ -59,14 +59,14 @@ nav {
   top: 0;
   z-index: 1000;
   min-height: 40px;
-  max-height: 80px;
-  height: 80px;
+  max-height: 60px;
+  height: 60px;
   display: flex;
   align-items: center;
 }
 
 nav > * {
-  height: 100%;
+  height: 70%;
   display: flex;
   align-items: center;
   justify-content: flex-start;
@@ -74,7 +74,6 @@ nav > * {
   gap: 1vw;
   background: transparent;
   transition: background 0.5s, color 0.5s;
-  width: 100vw;
   left: 0;
   right: 0;
   box-sizing: border-box;
@@ -82,7 +81,6 @@ nav > * {
   padding-right: 0;
   overflow: hidden;
 }
-
 
 .nav-scrolled {
   background: #000 !important;
@@ -108,14 +106,30 @@ nav.nav-scrolled a:active {
 
 nav a {
   display: inline-flex;
+  font-size: 20px;
   align-items: center;
   margin: 0 2vw;
-  /* 
-  font-size: 1.2rem; */
-  color: black;
-  text-transform: uppercase;
+  color: black;;
   text-decoration: none;
   gap: 0.15em;
+  position: relative;
+  overflow: hidden;
+}
+
+nav a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0.2em;
+  width: 0;
+  height: 2px;
+  background: currentColor;
+  transition: width 0.3s cubic-bezier(0.4,0,0.2,1);
+  z-index: 1;
+}
+
+nav a:hover::after, nav a:focus::after {
+  width: 100%;
 }
 
 /*#WorkExperience, #PersonalStatement { 
@@ -127,7 +141,9 @@ nav a {
 
 nav a .fa-linkedin,
 nav a .fa-github {
-  font-size: 1.5em !important;
+  font-size: 1em !important;
+  margin: 0 0;
+  gap: 0;
 }
 
 
@@ -357,8 +373,59 @@ nav a .fa-github {
   text-shadow: 1px 0px 3px black;
 }
 
+/* TIMELINE STYLES */
+.timeline {
+  position: relative;
+  margin: 40px 0 40px 30px;
+  padding-left: 30px;
+  border-left: 3px solid #8d8dff;
+}
 
-/*SCREENSIZE*****************************************************************
+.timeline-item {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.timeline-dot {
+  position: absolute;
+  left: -42px;
+  top: 0;
+  width: 18px;
+  height: 18px;
+  background: #8d8dff;
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px #8d8dff44;
+}
+
+.timeline-content {
+  background: #f7f7ff;
+  padding: 18px 24px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-left: 10px;
+  min-width: 220px;
+  max-width: 600px;
+}
+
+.timeline-content h4 {
+  margin: 0 0 6px 0;
+  font-size: 1.15em;
+  color: #222;
+}
+
+.timeline-date {
+  font-size: 0.95em;
+  color: #8d8dff;
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.timeline-content p {
+  margin: 4px 0;
+  color: #333;
+}
 @media only screen and (max-width: 1700px) {
   body {
     padding: 3vw 7vw;
@@ -415,4 +482,3 @@ nav a .fa-github {
     margin: 0 2px;
   }
 }
-*/

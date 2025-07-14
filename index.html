@@ -8,7 +8,7 @@
 
     <script defer="" src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
     <link href="https://fonts.googleapis.com/css?family=Hind+Madurai|Kanit|Michroma&display=swap" rel="stylesheet">
-    <title>> Eryk Kirzanowski — IT Enthusiast</title>
+    <title>Eryk Kirzanowski — IT Enthusiast</title>
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/anim.css">
@@ -30,11 +30,13 @@
    </head>
     <body>
         <nav>        
-            <h1><a href="#"><img id="e" src="assets/logo.png" height="36">ERIZ</a></h1> <!-- http://eriz.atwebpages.com/ -->
+            <a href="#"><img id="e" src="assets/logo.png" height="20"></a>
             <!-- <a href="?about">About</a> -->
             <!-- <a href="assets/docs/resume.pdf">Resume</a> -->
-            <a href="#portfolio">Portfolio</a>
-            <!-- <a href="?projects">Projects</a> -->
+            <a href="#education">Education</a>
+            <a hreh="#workexperience">Work Experience</a>
+            <a href="#personalstatement">Personal Statement</a>
+            <a href="#projects">Projects</a>
             <a href="https://www.linkedin.com/in/eryk-kirzanowski/"><i class="fab fa-linkedin"></i></a>
             <a href="https://github.com/Nobzie"><i class="fab fa-github"></i></a>
         </nav>
@@ -48,87 +50,45 @@
                 A fan of pure HTML, CSS & JavaScript, as well as Java, C# and Python. 
                 Apart from my passion, I enjoy to surf the web, play video games and listen to music.</p>
             </div>
-            <div class="container">
-                <div class="port">
-                        <div>
-                                <a href="#Education"><button onclick="openTab('Education')" class="lightblue"><i
-                                                        class="fas fa-school"></i></button></a>
-                                <p>Education</p>
-                        </div>
-
-                        <div>
-                                <a href="#WorkExperience"><button onclick="openTab('WorkExperience')" class="blue"><i
-                                                        class="fas fa-briefcase"></i></button></a>
-                                <p>Work Experience</p>
-                        </div>
-
-                        <div>
-                                <a href="#PersonalStatement"><button onclick="openTab('PersonalStatement')"
-                                                class="green"><i class="fas fa-quote-left"></i></button></a>
-                                <p>Personal Statement</p>
-                        </div>
-                        <!--
-        <div>
-                <a href="#Projects"><button onclick="openTab('Projects')" class="red"><i class="fas fa-pencil-ruler"></i></button></a>
-                <p>Projects</p>
-        </div>
-        
-        <div>
-                <a href="#CaseStudy"><button onclick="openTab('CaseStudy')" class="orange"><i class="fas fa-quote-left"></i></button></a>
-                <p>Case Study</p>
-        </div>
-        -->
-
-                        <div id="Education" class="section hidden">
-                                <button onclick="openTab('None')"><a href="#"><i class="fas fa-times"></i></a></button>
+            <div id="education" class="container">
+                        <div class="section">
                                 <h3>Education</h3>
-                                <div class="tab w100">
-                                        <b>
-                                                <p>Solihull College & University Centre - Solihull<br>Sep. 2018 - July
-                                                        2019</p>
-                                        </b>
-                                        <p>A-Level or equivalant<br>BTEC Level 3 Extended 90 Credit Diploma
-                                                Computing<br>
-                                                <hr><b>Grade: </b>D*D*D*
-                                        </p>
-                                </div>
-                                <hr>
-                                <div class="tab w100">
-                                        <b>
-                                                <p>Solihull College & University Centre - Solihull<br>Sep. 2017 - July
-                                                        2018</p>
-                                        </b>
-                                        <p>A-Level or equivalant<br>BTEC Level 3 Foundation 90 Credit Diploma
-                                                Computing<br>
-                                                <hr><b>Grade: </b>D*
-                                        </p>
-                                </div>
-                                <hr>
-                                <div class="tab w100">
-                                        <b>
-                                                <p>Solihull College & University Centre - Solihull<br>Sep. 2016 - July
-                                                        2017</p>
-                                        </b>
-                                        <p>Diploma of Higher Education<br>Cambridge Technical Diploma in IT OCR Level
-                                                2<br>
-                                                <hr><b>Grade: </b>M
-                                        </p>
-                                </div>
-                                <hr>
-                                <div class="tab w100">
-                                        <b>
-                                                <p>Harborne Academy - Birmingham<br>Dec. 2013 - July 2016</p>
-                                        </b>
-                                        <p>English: D<br>
-                                                Mathematics: C
-                                        </p>
-
-                                </div>
-                                <hr>
-                                <div class="tab">
-                                        <b>
-                                                <p>Also studied in Poland</p>
-                                        </b>
+                                <div class="timeline">
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <h4>Solihull College & University Centre - Solihull</h4>
+                                            <span class="timeline-date">Sep. 2018 - July 2019</span>
+                                            <p>A-Level or equivalent<br>BTEC Level 3 Extended 90 Credit Diploma Computing</p>
+                                            <p><b>Grade:</b> D*D*D*</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <h4>Solihull College & University Centre - Solihull</h4>
+                                            <span class="timeline-date">Sep. 2017 - July 2018</span>
+                                            <p>A-Level or equivalent<br>BTEC Level 3 Foundation 90 Credit Diploma Computing</p>
+                                            <p><b>Grade:</b> D*</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <h4>Solihull College & University Centre - Solihull</h4>
+                                            <span class="timeline-date">Sep. 2016 - July 2017</span>
+                                            <p>Diploma of Higher Education<br>Cambridge Technical Diploma in IT OCR Level 2</p>
+                                            <p><b>Grade:</b> D</p>
+                                        </div>
+                                    </div>
+                                    <div class="timeline-item">
+                                        <div class="timeline-dot"></div>
+                                        <div class="timeline-content">
+                                            <h4>Harborne Academy - Birmingham</h4>
+                                            <span class="timeline-date">Dec. 2013 - July 2016</span>
+                                            <p>English: D<br>Mathematics: C<br>ECDL: D*</p>
+                                        </div>
+                                    </div>
                                 </div>
                         </div>
 
@@ -195,7 +155,18 @@
                                                 understand different parts of human organism.</p>
                                 </div>
                         </div>
+                        <div class="port">
+                        <div>
+                                <a href="#WorkExperience"><button onclick="openTab('WorkExperience')" class="blue"><i
+                                                        class="fas fa-briefcase"></i></button></a>
+                                <p>Work Experience</p>
+                        </div>
 
+                        <div>
+                                <a href="#PersonalStatement"><button onclick="openTab('PersonalStatement')"
+                                                class="green"><i class="fas fa-quote-left"></i></button></a>
+                                <p>Personal Statement</p>
+                        </div>
                         <div id="Projects" class="section hidden">
                                 <button onclick="openTab('None')"><a href="#"><i class="fas fa-times"></i></a></button>
                                 <i class="fas fa-pencil-ruler" style="font-size: 48px;"></i>
