@@ -1,16 +1,92 @@
+/* Consistent section background for all main sections */
+.section-bg {
+  background: rgba(225, 208, 208, 0.25);
+  border-radius: 16px;
+  padding: 2.5em 1.5em 2em 1.5em;
+  margin: 2em auto 2em auto;
+  max-width: 950px;
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,.06);
+}
+
+@media only screen and (max-width: 800px) {
+  .section-bg {
+    padding: 1.2em 0.5em 1em 0.5em;
+    max-width: 99vw;
+  }
+}
+/* WORK EXPERIENCE SECTION */
+.work-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+  margin-top: 1.5em;
+}
+
+.work-item {
+  background: rgba(225, 208, 208, 0.5);
+  border-radius: 10px;
+  padding: 1.2em 2em;
+  box-shadow: 0px 0px 10px 0px rgba(0,0,0,.08);
+  margin: 0 auto;
+}
+
+.work-item h4 {
+  margin: 0 0 0.2em 0;
+  font-size: 1.25em;
+  font-weight: 600;
+}
+
+.work-meta {
+  display: block;
+  font-size: 1em;
+  color: #444;
+  margin-bottom: 0.7em;
+  font-style: italic;
+}
+
+.work-item p {
+  margin: 0.2em 0 0 0;
+  font-size: 1.05em;
+  color: #222;
+}
+
+@media only screen and (max-width: 800px) {
+  .work-item {
+    padding: 1em 0.7em;
+  }
+  .work-list {
+    gap: 1.2em;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  .work-item {
+    padding: 0.7em 0.2em;
+  }
+  .work-item h4 {
+    font-size: 1.05em;
+  }
+  .work-meta {
+    font-size: 0.95em;
+  }
+  .work-item p {
+    font-size: 0.95em;
+  }
+}
 /*GENERAL******************************************************************/
 *:focus { outline:none !important }
 
 html, body {
   margin: 0;
   padding: 0;
-  width: auto;
-  height: auto;
+  width: 100vw;
+  min-height: 100vh;
   scroll-behavior: smooth;
   user-select: none;
   -ms-user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
+  overflow-x: hidden;
 }
 
 body {
@@ -21,6 +97,8 @@ body {
   background-repeat: no-repeat;
   background-position: center;
   box-sizing: border-box;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 h1 {
@@ -63,6 +141,10 @@ nav {
   height: 60px;
   display: flex;
   align-items: center;
+  width: 100vw;
+  left: 0;
+  background: white;
+  box-sizing: border-box;
 }
 
 nav > * {
@@ -86,6 +168,16 @@ nav > * {
   background: #000 !important;
   color: #fff !important;
   transition: background 0.5s, color 0.5s;
+  position: fixed !important;
+  width: 100vw !important;
+  left: 0;
+  top: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  z-index: 1001;
+/* Offset anchor for #education to prevent content from being hidden under fixed nav */
+#education {
+  scroll-margin-top: 90px;
+}
 }
 
 nav.nav-scrolled img#e {

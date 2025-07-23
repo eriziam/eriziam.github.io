@@ -16,14 +16,24 @@
     <script>
     window.addEventListener('DOMContentLoaded', function() {
       const nav = document.querySelector('nav');
+      let ticking = false;
       function onScroll() {
         if (window.scrollY > 50) {
           nav.classList.add('nav-scrolled');
         } else {
           nav.classList.remove('nav-scrolled');
+          nav.style.position = '';
         }
       }
-      window.addEventListener('scroll', onScroll);
+      window.addEventListener('scroll', function() {
+        if (!ticking) {
+          window.requestAnimationFrame(function() {
+            onScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      });
       onScroll();
     });
     </script>
@@ -34,7 +44,7 @@
             <!-- <a href="?about">About</a> -->
             <!-- <a href="assets/docs/resume.pdf">Resume</a> -->
             <a href="#education">Education</a>
-            <a hreh="#workexperience">Work Experience</a>
+            <a href="#workexperience">Work Experience</a>
             <a href="#personalstatement">Personal Statement</a>
             <a href="#projects">Projects</a>
             <a href="https://www.linkedin.com/in/eryk-kirzanowski/"><i class="fab fa-linkedin"></i></a>
@@ -50,7 +60,7 @@
                 A fan of pure HTML, CSS & JavaScript, as well as Java, C# and Python. 
                 Apart from my passion, I enjoy to surf the web, play video games and listen to music.</p>
             </div>
-            <div id="education" class="container">
+            <div id="education" class="container section-bg">
                         <div class="section">
                                 <h3>Education</h3>
                                 <div class="timeline">
@@ -86,110 +96,66 @@
                                         <div class="timeline-content">
                                             <h4>Harborne Academy - Birmingham</h4>
                                             <span class="timeline-date">Dec. 2013 - July 2016</span>
-                                            <p>English: D<br>Mathematics: C<br>ECDL: D*</p>
+                                            <p><b>English:</b> D<br><b>Mathematics:</b> C<br><b>ECDL:</b> D*</p>
                                         </div>
                                     </div>
                                 </div>
                         </div>
 
-                        <div id="WorkExperience" class="section hidden">
-                                <button onclick="openTab('None')"><a href="#"><i class="fas fa-times"></i></a></button>
-                                <h3>Work Experience</h3>
-
-                                <div class="tab">
-                                        <b>
-                                                <p>King Solomon International Business School <i
-                                                                style="float: right; font-style: normal;">2021</i></p>
-                                        </b>
-                                        <p>I was invited to once again host my own web development coding sessions
-                                                during a summer holiday. This included the very HTML basics, making own
-                                                designs in CSS, and simple JavaScirpt programming which even allowed few
-                                                students to get a working "cookie" clicker on their sites.</p>
+                        <div id="workexperience" class="section section-bg">
+                            <h3>Work Experience</h3>
+                            <div class="work-list">
+                                <div class="work-item">
+                                    <h4>Supply Teacher & Teaching Assistant</h4>
+                                    <span class="work-meta">Aspire People — Nuneaton | Feb 2025 – May 2025</span>
+                                    <p>I was responsible for managing student behaviour in the classroom, helping maintain a focused and respectful learning environment. My role included both leading classes independently and supporting teachers, ensuring pupils stayed engaged and on task. This position required strong classroom management, communication, and the ability to adapt quickly to different teaching styles and student needs.</p>
                                 </div>
-                                <hr>
-                                <div class="tab">
-                                        <b>
-                                                <p>King Solomon International Business School <i
-                                                                style="float: right; font-style: normal;">2020</i></p>
-                                        </b>
-                                        <p>During my year at Aston University I am also hosting my own coding sessions
-                                                at a nearby high school where I am teaching simple Java programming
-                                                using software called Processing. All the content and ways of teaching
-                                                are mine and they seem to be really successful in a teaching
-                                                environment.</p>
+                                <div class="work-item">
+                                    <h4>Device Technician</h4>
+                                    <span class="work-meta">Smart Cherry Mobiles Ltd. — Nuneaton | Sep 2023 – Jun 2024</span>
+                                    <p>I was responsible for overseeing the smartphone trade-in process, ensuring efficient evaluation and smooth handling of devices from customers to the company. My role involved assessing item value, negotiating fair terms, customer service in person, over the phone, email, and live chat, and securing a seamless transaction experience. I consistently aimed to maximise trade-in value while delivering exceptional customer service and maintaining strong profitability.</p>
                                 </div>
-                                <hr>
-                                <div class="tab">
-                                        <b>
-                                                <p>King Solomon International Business School <i
-                                                                style="float: right; font-style: normal;">2019</i></p>
-                                        </b>
-                                        <p>In the second half of summer holiday of 2019 I have decided to volunteer in
-                                                another project, that was hosted by a school. The project was a Summer
-                                                Code Camp, which was an option for children that wanted to try and dip
-                                                their feet in coding during holiday. My job was to teach them and help
-                                                understand how coding works, using simple and non-technical vocabulary
-                                                so that they understood.</p>
+                                <div class="work-item">
+                                    <h4>General Maintenance Worker</h4>
+                                    <span class="work-meta">Chaplin Bros (Birmingham) Ltd. — Sutton Coldfield | Jun 2023 – Jul 2023</span>
+                                    <p>I assisted in relocating office equipment and supplies between buildings, ensuring the safe and efficient transport of all items. My responsibilities included groundskeeping tasks such as weed removal and bush trimming to maintain a professional exterior environment. I also performed painting work on machinery, adhering strictly to safety protocols and using the appropriate protective equipment.</p>
                                 </div>
-                                <hr>
-                                <div class="tab">
-                                        <b>
-                                                <p>Ace Hub @ Solihull College <i
-                                                                style="float: right; font-style: normal;">2019</i></p>
-                                        </b>
-                                        <p>During my final year at college, I've decided to go and pick up a project I
-                                                could work on. The project was either re-designign the website for the
-                                                business that was online at that time, or design and develop a new
-                                                website from scratch. The website supposed to show all the information
-                                                about the hair and beauty saloon called Born Beautiful.</p>
+                                <div class="work-item">
+                                    <h4>Production Assistant</h4>
+                                    <span class="work-meta">Chaplin Bros (Birmingham) Ltd. — Sutton Coldfield | May 2022 – Jun 2022</span>
+                                    <p>I was involved in wire production support, assisting with reeling, labelling, and packaging to meet client specifications. I performed quality assurance checks to ensure consistency and accuracy throughout the process. Additionally, I operated machinery to ensure the wire output matched exact client requirements, demonstrating attention to detail and technical precision.</p>
                                 </div>
-                                <hr>
-                                <div class="tab">
-                                        <b>
-                                                <p>Digital Innov8ors <i
-                                                                style="float: right; font-style: normal;">2018</i></p>
-                                        </b>
-                                        <p>The project I was working during my course in college, was called "Adventures
-                                                in Bodiwell", which was based on the book under the same name. The idea
-                                                was to create an application for children that would help them learn and
-                                                understand different parts of human organism.</p>
+                                <div class="work-item">
+                                    <h4>Stock Counter</h4>
+                                    <span class="work-meta">Orridge & Company Ltd. | Apr 2022 – May 2022</span>
+                                    <p>I was responsible for accurate and efficient stock counts in store sections such as Boots, Pep & Co., and Poundland. This involved using a handheld scanner as well as performing quick manual counts and data entry of stock levels on shelves and in storage. The role required strong attention to detail, speed, and the ability to work independently under time pressure.</p>
                                 </div>
-                        </div>
-                        <div class="port">
-                        <div>
-                                <a href="#WorkExperience"><button onclick="openTab('WorkExperience')" class="blue"><i
-                                                        class="fas fa-briefcase"></i></button></a>
-                                <p>Work Experience</p>
+                                <div class="work-item">
+                                    <h4>IT Tutor</h4>
+                                    <span class="work-meta">King Solomon International Business School — Birmingham | Jul 2019 – Aug 2021</span>
+                                    <p>In the summer of 2019, I volunteered at a Summer Code Camp, where I taught children the fundamentals of coding using simple, non-technical language to ensure accessibility. During my time at Aston University, I also hosted my own Java programming sessions at a local high school using the Processing environment. I independently created all the teaching materials, demonstrating strong communication, initiative, and the ability to deliver engaging and effective instruction.</p>
+                                </div>
+                                <div class="work-item">
+                                    <h4>Production Assistant</h4>
+                                    <span class="work-meta">Chaplin Bros (Birmingham) Ltd. — Sutton Coldfield | Jun 2021 – Jul 2021</span>
+                                    <p>I was involved in wire production support, assisting with reeling, labelling, and packaging to meet client specifications. I performed quality assurance checks to ensure consistency and accuracy throughout the process. Additionally, I operated machinery to ensure the wire output matched exact client requirements, demonstrating attention to detail and technical precision.</p>
+                                </div>
+                                <div class="work-item">
+                                    <h4>Web Developer</h4>
+                                    <span class="work-meta">Ace Hub @ Solihull College — Solihull | Nov 2018 – Feb 2019</span>
+                                    <p>In my final year of college, I took the initiative to start a web development project for a live business. The task involved either redesigning the existing website or building a new one from scratch for a hair and beauty salon called Born Beautiful. The goal was to create a site that clearly presented all essential salon information, demonstrating my creative design skills, technical development ability, and self-motivation.</p>
+                                </div>
+                                <div class="work-item">
+                                    <h4>App Developer</h4>
+                                    <span class="work-meta">Digital Innov8ors — Birmingham | Nov 2017 – Mar 2018</span>
+                                    <p>During the second half of my Level 3 Foundation course and the holiday break, I worked on a project called Adventures in Bodiwell—an educational application designed for children. The app aimed to help users learn and understand the human body through interactive features and simplified content. This project showcased my creativity, educational focus, and ability to develop user-friendly digital experiences.</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div>
-                                <a href="#PersonalStatement"><button onclick="openTab('PersonalStatement')"
-                                                class="green"><i class="fas fa-quote-left"></i></button></a>
-                                <p>Personal Statement</p>
-                        </div>
-                        <div id="Projects" class="section hidden">
-                                <button onclick="openTab('None')"><a href="#"><i class="fas fa-times"></i></a></button>
-                                <i class="fas fa-pencil-ruler" style="font-size: 48px;"></i>
-                                <h3>Under Construction</h3>
-                                <!--<h3>Projects</h3>
-                
-                <div class="box stadia">
-                        <b><p>Stadia Countdown</p></b>
-                        <div class="inner-box">
-                                <p>A user on Reddit created a site counting down till the release of Stadia (Cloud-based gaming platform by Google). I've decided to give it a try and create my own version of it. It was simple and fun project that got a lot of positive feedback from the community.</p>
-                        </div>
-                </div>
-                
-                <div class="box skyblue">
-                        <b><p>Learn.java</p></b>
-                        <div class="inner-box">
-                                <p>Site I have created as my content for my programming teaching sessions.<br>It supposed to include all the lessons I have went through as well as some examples to help understand everything and also very important information that can help with getting into programming.</p>
-                        </div>
-                </div>-->
                         </div>
 
-                        <div id="PersonalStatement" class="section hidden">
-                                <button onclick="openTab('None')"><a href="#"><i class="fas fa-times"></i></a></button>
+                        <div id="personalstatement" class="section section-bg">
                                 <h3>Personal Statement</h3>
                                 <div class="tab">
                                         <p>I was born in Poland, came to the UK in 2013 and speak fluent Polish. I am a
