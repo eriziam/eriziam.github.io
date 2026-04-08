@@ -22,6 +22,7 @@ const CORRECT_PASSWORD = "eriz2025";
 const STORAGE_KEY = "music_vault_rankings";
 const PASSWORD_KEY = "music_vault_auth";
 const GENRES_KEY = "music_vault_genres";
+const PLAYS_KEY = "music_vault_plays";
 
 let currentIndex = -1;
 let isPlaying = false;
@@ -29,6 +30,7 @@ let isLooping = false;
 let isShuffling = false;
 let rankings = [];
 let genres = {};
+let playCounts = {};
 let activeFilter = "all";
 
 const audio = document.getElementById("audio");
@@ -134,6 +136,7 @@ function getFilteredSongs() {
 
 async function initApp() {
     await loadGenres();
+    await loadPlayCounts();
     renderGenreFilter();
     loadRankings();
     renderPlaylist();
@@ -180,6 +183,7 @@ function renderPlaylist() {
     playlistEl.innerHTML = filtered.map((song, i) => {
         const songGenres = getSongGenres(song.title);
         const genreTags = songGenres.map(g => `<span class="genre-tag">${g}</span>`).join("");
+        const playCount = getPlayCount(song.title);
         return `
         <li data-index="${songs.indexOf(song)}" class="${songs.indexOf(song) === currentIndex ? 'active' : ''}">
             <span class="track-num">${i + 1}</span>
@@ -187,6 +191,7 @@ function renderPlaylist() {
                 <span class="track-title">${song.title}</span>
                 <span class="track-genres">${genreTags}</span>
             </div>
+            <span class="play-count">${playCount} plays</span>
             <button class="play-track" data-index="${songs.indexOf(song)}"><i class="fas fa-play"></i></button>
         </li>
     `;
@@ -197,16 +202,63 @@ function renderPlaylist() {
     });
 }
 
-function playTrack(index) {
+async function playTrack(index) {
     currentIndex = index;
     audio.src = encodeURI(`music/${songs[index].file}`);
     currentTitle.textContent = songs[index].title;
     document.getElementById("player-title").textContent = songs[index].title;
     document.getElementById("player-status").textContent = "Now playing";
     currentStatus.textContent = "Now playing";
+    
+    await incrementPlayCount(songs[index].title);
     renderPlaylist();
     togglePlay(true);
     audio.play();
+}
+
+async function loadPlayCounts() {
+    playCounts = {};
+    
+    if (!window.firebaseDb) {
+        console.log("Firebase not configured - using local counts");
+        const localSaved = localStorage.getItem(PLAYS_KEY);
+        const savedCounts = localSaved ? JSON.parse(localSaved) : {};
+        for (const song of songs) {
+            playCounts[song.title] = savedCounts[song.title] || 0;
+        }
+        return;
+    }
+    
+    for (const song of songs) {
+        const songRef = window.firebaseRef(window.firebaseDb, `plays/${song.file}`);
+        window.firebaseOnValue(songRef, (snapshot) => {
+            playCounts[song.title] = snapshot.val() || 0;
+            renderPlaylist();
+        });
+    }
+}
+
+async function incrementPlayCount(title) {
+    if (!window.firebaseDb) {
+        playCounts[title] = (playCounts[title] || 0) + 1;
+        const localSaved = JSON.parse(localStorage.getItem(PLAYS_KEY) || '{}');
+        localSaved[title] = playCounts[title];
+        localStorage.setItem(PLAYS_KEY, JSON.stringify(localSaved));
+        renderPlaylist();
+        return;
+    }
+    
+    const song = songs.find(s => s.title === title);
+    if (!song) return;
+    
+    const songRef = window.firebaseRef(window.firebaseDb, `plays/${song.file}`);
+    await window.firebaseTransaction(songRef, (currentCount) => {
+        return (currentCount || 0) + 1;
+    });
+}
+
+function getPlayCount(title) {
+    return playCounts[title] || 0;
 }
 
 function togglePlay(play) {

@@ -10,6 +10,26 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="stylesheet" href="css/music.css">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwK1DxbG6mr4LDSqBMXitK3fiAucGAdsU",
+            authDomain: "musicvault-394b5.firebaseapp.com",
+            databaseURL: "https://musicvault-394b5-default-rtdb.firebaseio.com",
+            projectId: "musicvault-394b5",
+            storageBucket: "musicvault-394b5.firebasestorage.app",
+            messagingSenderId: "964254219189",
+            appId: "1:964254219189:web:b94ee1c20ced177ef337fc"
+        };
+        
+        window.firebaseApp = initializeApp(firebaseConfig);
+        window.firebaseDb = getDatabase(window.firebaseApp);
+        window.firebaseRef = ref;
+        window.firebaseTransaction = runTransaction;
+        window.firebaseOnValue = onValue;
+    </script>
 </head>
 <body>
     <div id="gate">
