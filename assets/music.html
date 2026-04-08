@@ -14,6 +14,8 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
         import { getDatabase, ref, runTransaction, onValue } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
         
+        // NOTE: This API key is exposed by design for client-side Firebase
+        // Database is secured via Firebase RTDB Rules (test mode allows read/write)
         const firebaseConfig = {
             apiKey: "AIzaSyAwK1DxbG6mr4LDSqBMXitK3fiAucGAdsU",
             authDomain: "musicvault-394b5.firebaseapp.com",

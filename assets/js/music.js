@@ -1,21 +1,26 @@
 const songs = [
     { file: "Beemka Metalik.mp3", title: "Beemka Metalik", eq: "metal" },
     { file: "Bermuda Triangle.mp3", title: "Bermuda Triangle", eq: "pop" },
-    { file: "Don\u2019t Let Go.mp3", title: "Don\u2019t Let Go", eq: "pop" },
+    { file: "Don\u2019t Let Go.mp3", title: "Don't Let Go", eq: "pop" },
     { file: "Gumisiowy Sok.mp3", title: "Gumisiowy Sok", eq: "synthwave" },
     { file: "Heartbreak is mean.mp3", title: "Heartbreak is mean", eq: "lofi" },
-    { file: "Kr\u00f3lowie bez ruch\u00f3w.mp3", title: "Kr\u00f3lowie bez ruch\u00f3w", eq: "pop" },
+    { file: "Kr\u00f3lowie bez ruch\u00f3w.mp3", title: "Królowie bez ruchów", eq: "pop" },
     { file: "London Rain.mp3", title: "London Rain", eq: "lofi" },
     { file: "Lodowaty Monster.mp3", title: "Lodowaty Monster", eq: "ambient" },
     { file: "Midnight Highway.mp3", title: "Midnight Highway", eq: "metal" },
     { file: "Ni Hao Neon.mp3", title: "Ni Hao Neon", eq: "synthwave" },
     { file: "Ohne Erwachen.mp3", title: "Ohne Erwachen", eq: "metal" },
     { file: "Paper Planes.mp3", title: "Paper Planes", eq: "pop" },
-    { file: "Precious You\u2019re Safe.mp3", title: "Precious You\u2019re Safe", eq: "ambient" },
+    { file: "Precious You\u2019re Safe.mp3", title: "Precious You're Safe", eq: "ambient" },
     { file: "Red Light Fugue.mp3", title: "Red Light Fugue", eq: "electronic" },
     { file: "Sunlight Reflection.mp3", title: "Sunlight Reflection", eq: "ambient" },
     { file: "Think about tomorrow.mp3", title: "Think about tomorrow", eq: "lofi" },
-    { file: "Train No Destination.mp3", title: "Train No Destination", eq: "lofi" }
+    { file: "Train No Destination.mp3", title: "Train No Destination", eq: "lofi" },
+    { file: "Hoppity HOP Bounce.mp3", title: "Hoppity HOP Bounce", eq: "phonk" },
+    { file: "Makka Pakka 37 Kilos.mp3", title: "Makka Pakka 37 Kilos", eq: "phonk" },
+    { file: "Monster Chilled.mp3", title: "Monster Chilled", eq: "phonk" },
+    { file: "Tires Screechin.mp3", title: "Tires Screechin", eq: "electronic" },
+    { file: "Two A.M. Neckhold.mp3", title: "Two A.M. Neckhold", eq: "rock" }
 ];
 
 const CORRECT_PASSWORD = "eriz2025";
@@ -130,9 +135,14 @@ function parseGenres(text) {
         if (!trimmed || trimmed.startsWith("#")) continue;
         const eqIdx = trimmed.indexOf("=");
         if (eqIdx === -1) continue;
-        const title = trimmed.substring(0, eqIdx).trim();
+        let title = trimmed.substring(0, eqIdx).trim();
         const genreStr = trimmed.substring(eqIdx + 1).trim();
         const genreList = genreStr.split(",").map(g => g.trim()).filter(g => g);
+        
+        // Normalize title: remove .mp3, fix special chars to match song titles
+        title = title.replace(/\.mp3$/i, "").replace(/'/g, "'").replace(/"/g, '"');
+        
+        // Also try adding the original title as-is for keys without special chars
         result[title] = genreList;
     }
     return result;
@@ -298,7 +308,7 @@ function renderPlaylist() {
         const isFav = favorites.has(song.title);
         const inQueue = queue.includes(song.title);
         return `
-        <li data-index="${songs.indexOf(song)}" class="${songs.indexOf(song) === currentIndex ? 'active' : ''}">
+        <li data-index="${songs.indexOf(song)}" class="${songs.indexOf(song) === currentIndex ? 'active' : ''}" ondblclick="playTrack(${songs.indexOf(song)})">
             <span class="track-num">${i + 1}</span>
             <div class="track-info">
                 <span class="track-title">${song.title}</span>
