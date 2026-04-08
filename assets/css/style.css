@@ -477,3 +477,17 @@ footer {
     align-items: stretch;
   }
 }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0a0a0f;
+    --color-surface: #12121a;
+    --color-text: #e8e8ec;
+    --color-text-muted: #8a8a9a;
+    --color-accent: #7c5cfc;
+    --color-accent-hover: #9585ff;
+    --color-border: #1e1e2e;
+    --color-timeline-line: #2a2a3a;
+    --color-timeline-bg: #16161f;
+  }
+}

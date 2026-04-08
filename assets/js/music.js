@@ -411,11 +411,34 @@ async function playTrack(index) {
     currentStatus.textContent = "Now playing";
     currentEq = songs[index].eq || "flat";
     
+    const npCard = document.querySelector(".now-playing-card");
+    let npWaveform = npCard.querySelector(".np-waveform");
+    if (!npWaveform) {
+        npWaveform = document.createElement("div");
+        npWaveform.className = "np-waveform";
+        npCard.appendChild(npWaveform);
+    }
+    const barCount = 40;
+    npWaveform.innerHTML = Array.from({length: barCount}, (_, i) => 
+        `<div class="wave-bar" style="height: ${Math.random() * 60 + 20}%"></div>`
+    ).join("");
+    
     addToRecent(songs[index].title);
     await incrementPlayCount(songs[index].title);
     renderPlaylist();
     togglePlay(true);
     audio.play();
+    
+    if (isPlaying) animateWaveform(npWaveform);
+}
+
+function animateWaveform(container) {
+    if (!container || !isPlaying) return;
+    const bars = container.querySelectorAll(".wave-bar");
+    bars.forEach(bar => {
+        bar.style.height = `${Math.random() * 80 + 20}%`;
+    });
+    setTimeout(() => animateWaveform(container), 150);
 }
 
 function addToRecent(title) {
@@ -430,6 +453,13 @@ function togglePlay(play) {
     playBtn.querySelector("i").className = play ? "fas fa-pause" : "fas fa-play";
     if (play && audio.src) audio.play();
     else if (!play && audio.src) audio.pause();
+    const npWaveform = document.querySelector(".np-waveform");
+    if (npWaveform) {
+        if (play) animateWaveform(npWaveform);
+        else {
+            npWaveform.querySelectorAll(".wave-bar").forEach(bar => bar.style.height = "20%");
+        }
+    }
 }
 
 playBtn.addEventListener("click", () => {
@@ -648,5 +678,73 @@ document.addEventListener("keydown", (e) => {
         nextBtn.click();
     } else if (e.code === "ArrowLeft") {
         prevBtn.click();
+    }
+});
+
+// Right-click Context Menu
+let contextMenuTarget = null;
+
+function showContextMenu(e, songTitle) {
+    e.preventDefault();
+    const existing = document.querySelector(".context-menu");
+    if (existing) existing.remove();
+
+    const isFav = favorites.has(songTitle);
+    const isInQueue = queue.includes(songTitle);
+
+    const menu = document.createElement("div");
+    menu.className = "context-menu";
+    menu.innerHTML = `
+        <div class="context-menu-item play-now" data-title="${songTitle}">
+            <i class="fas fa-play"></i> Play Now
+        </div>
+        <div class="context-menu-item queue-menu ${isInQueue ? 'active' : ''}" data-title="${songTitle}">
+            <i class="fas fa-list"></i> ${isInQueue ? 'Remove from Queue' : 'Add to Queue'}
+        </div>
+        <div class="context-menu-item fav-menu ${isFav ? 'active' : ''}" data-title="${songTitle}">
+            <i class="fas fa-heart"></i> ${isFav ? 'Remove from Favorites' : 'Add to Favorites'}
+        </div>
+    `;
+
+    menu.style.left = `${Math.min(e.clientX, window.innerWidth - 180)}px`;
+    menu.style.top = `${Math.min(e.clientY, window.innerHeight - 150)}px`;
+    document.body.appendChild(menu);
+
+    contextMenuTarget = songTitle;
+
+    menu.querySelector(".play-now").addEventListener("click", () => {
+        const idx = songs.findIndex(s => s.title === songTitle);
+        if (idx !== -1) playTrack(idx);
+        menu.remove();
+    });
+
+    menu.querySelector(".queue-menu").addEventListener("click", () => {
+        const idx = songs.findIndex(s => s.title === songTitle);
+        if (idx !== -1) addToQueue(idx);
+        menu.remove();
+    });
+
+    menu.querySelector(".fav-menu").addEventListener("click", () => {
+        if (favorites.has(songTitle)) {
+            favorites.delete(songTitle);
+        } else {
+            favorites.add(songTitle);
+        }
+        localStorage.setItem(FAVES_KEY, JSON.stringify([...favorites]));
+        renderPlaylist();
+        menu.remove();
+    });
+}
+
+document.addEventListener("click", (e) => {
+    const existing = document.querySelector(".context-menu");
+    if (existing && !e.target.closest(".context-menu")) existing.remove();
+});
+
+document.addEventListener("contextmenu", (e) => {
+    const trackRow = e.target.closest(".track-list li");
+    if (trackRow) {
+        const title = trackRow.querySelector(".track-title")?.textContent;
+        if (title) showContextMenu(e, title);
     }
 });
