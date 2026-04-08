@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Projects - Eryk Kirzanowski</title>
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body { background: #080810; min-height: 100vh; }
+        .projects-nav { display: flex; gap: 20px; padding: 20px; justify-content: center; border-bottom: 1px solid #1c1c30; }
+        .projects-nav a { color: #6060a0; text-decoration: none; font-size: 14px; padding: 8px 16px; border-radius: 6px; transition: all 0.2s; }
+        .projects-nav a:hover, .projects-nav a.active { color: #b09fff; background: #16162a; }
+        .cv-studio-container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .back-btn { position: fixed; top: 20px; left: 20px; color: #6060a0; font-size: 14px; text-decoration: none; }
+        .back-btn:hover { color: #b09fff; }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-btn">← Back to Site</a>
+    
+    <nav class="projects-nav">
+        <a href="projects.html" class="active">CV Studio</a>
+    </nav>
+    
+    <div class="cv-studio-container">
+        <div id="cv-studio-root"></div>
+    </div>
+
+    <script type="text/babel">
+        const { useState, useRef, useEffect, useCallback, useReducer } = React;
+
+        const T = { bg: "#080810", surface: "#0e0e1c", border: "#1c1c30", accent: "#7c5cfc", accentDim: "#4a3a8a", accentLight: "#b09fff", text: "#e2e0f0", muted: "#6060a0", faint: "#3a3a5a", green: "#4af50", yellow: "#f59e0b", red: "#ef4444" };
+        
+        const S = {
+            app: { fontFamily: "'Sora',sans-serif", minHeight: "100vh", background: T.bg, color: T.text },
+            header: { borderBottom: `1px solid ${T.border}`, padding: "0 18px", display: "flex", alignItems: "center", justifyContent: "space-between", height: 50, background: "#0a0a14" },
+            shell: { display: "flex", flex: 1, overflow: "hidden", height: "calc(100vh - 50px)" },
+            sidebar: { width: 196, background: "#0a0a14", borderRight: `1px solid ${T.border}`, display: "flex", flexDirection: "column" },
+            editor: { flex: 1, overflowY: "auto", padding: "18px 22px", background: T.bg },
+            card: { background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "16px 18px", marginBottom: 12 },
+            inp: { width: "100%", background: "#080812", border: `1px solid ${T.border}`, borderRadius: 6, padding: "7px 10px", color: T.text, fontSize: 13, fontFamily: "'Sora',sans-serif", outline: "none" },
+            btn: (v = "ghost") => ({ padding: "8px 14px", borderRadius: 6, border: v === "ghost" ? `1px solid ${T.border}` : "none", background: v === "primary" ? T.accent : "#14142a", color: T.accentLight, fontSize: 12, fontWeight: 600, cursor: "pointer" }),
+        };
+
+        const uid = () => Math.random().toString(36).slice(2, 9);
+        
+        const EMPTY_CV = {
+            personal: { name: "Eryk Kirzanowski", title: "IT Enthusiast", email: "eryk@example.com", summary: "Self-motivated developer with experience in web development, Java, C#, and Python." },
+            experience: [{ id: uid(), company: "Smart Cherry Mobiles", role: "Device Technician", start: "Sep 2023", end: "Jun 2024", bullets: ["Managed smartphone trade-in process", "Customer service across multiple channels"] }],
+            skills: { technical: ["HTML", "CSS", "JavaScript", "Java", "C#", "Python"], tools: ["Git", "VS Code"], soft: [] },
+            education: [{ id: uid(), institution: "Solihull College", degree: "BTEC Level 3", start: "2016", end: "2019" }],
+            certifications: [], projects: [], languages: [{ id: uid(), language: "Polish", level: "Native" }, { id: uid(), language: "English", level: "Fluent" }]
+        };
+
+        function CVStudio() {
+            const [cv, setCV] = useState(() => {
+                try { const s = localStorage.getItem("cvs3"); return s ? JSON.parse(s) : EMPTY_CV; }
+                catch { return EMPTY_CV; }
+            });
+            const [tab, setTab] = useState("personal");
+            const [showPreview, setShowPreview] = useState(true);
+
+            useEffect(() => {
+                localStorage.setItem("cvs3", JSON.stringify(cv));
+            }, [cv]);
+
+            const patch = (path, value) => {
+                setCV(c => {
+                    const newCV = { ...c };
+                    const keys = path.split(".");
+                    let obj = newCV;
+                    for (let i = 0; i < keys.length - 1; i++) obj = obj[keys[i]];
+                    obj[keys[keys.length - 1]] = value;
+                    return newCV;
+                });
+            };
+
+            const addExperience = () => setCV(c => ({ ...c, experience: [...c.experience, { id: uid(), company: "", role: "", start: "", end: "", bullets: [""] }] }));
+            const removeExperience = (id) => setCV(c => ({ ...c, experience: c.experience.filter(e => e.id !== id) }));
+
+            const NAV = [
+                { id: "personal", label: "Personal", icon: "👤" },
+                { id: "experience", label: "Experience", icon: "💼" },
+                { id: "education", label: "Education", icon: "🎓" },
+                { id: "skills", label: "Skills", icon: "⚡" },
+            ];
+
+            return (
+                <div style={S.app}>
+                    <div style={S.header}>
+                        <span style={{ fontFamily: "'Playfair Display',serif", fontSize: 18, color: T.accentLight }}>CV Studio</span>
+                        <button style={S.btn()} onClick={() => setShowPreview(!showPreview)}>{showPreview ? "Hide Preview" : "Show Preview"}</button>
+                    </div>
+                    <div style={S.shell}>
+                        <div style={S.sidebar}>
+                            {NAV.map(item => (
+                                <div key={item.id} onClick={() => setTab(item.id)}
+                                    style={{
+                                        display: "flex", alignItems: "center", gap: 8, padding: "7px 14px",
+                                        cursor: "pointer", fontSize: 12.5, fontWeight: tab === item.id ? 600 : 400,
+                                        color: tab === item.id ? T.accentLight : T.muted,
+                                        background: tab === item.id ? "#16162a" : "transparent",
+                                        borderLeft: `2px solid ${tab === item.id ? T.accent : "transparent"}`
+                                    }}>
+                                    <span>{item.icon}</span> {item.label}
+                                </div>
+                            ))}
+                        </div>
+                        <div style={S.editor}>
+                            {tab === "personal" && (
+                                <div style={S.card}>
+                                    <h3 style={{ fontSize: 11, color: T.muted, marginBottom: 11 }}>Personal Details</h3>
+                                    <input style={S.inp} placeholder="Full Name" value={cv.personal.name} onChange={e => patch("personal.name", e.target.value)} />
+                                    <input style={{ ...S.inp, marginTop: 10 }} placeholder="Job Title" value={cv.personal.title} onChange={e => patch("personal.title", e.target.value)} />
+                                    <textarea style={{ ...S.inp, marginTop: 10, minHeight: 80 }} placeholder="Professional Summary" value={cv.personal.summary} onChange={e => patch("personal.summary", e.target.value)} />
+                                </div>
+                            )}
+                            {tab === "experience" && (
+                                <div>
+                                    <h3 style={{ fontSize: 11, color: T.muted, marginBottom: 11 }}>Experience</h3>
+                                    {cv.experience.map((exp, i) => (
+                                        <div key={exp.id} style={{ ...S.card, marginBottom: 10 }}>
+                                            <div style={{ display: "flex", gap: 10 }}>
+                                                <input style={{ ...S.inp, flex: 1 }} placeholder="Company" value={exp.company} onChange={e => patch(`experience.${i}.company`, e.target.value) } />
+                                                <input style={{ ...S.inp, flex: 1 }} placeholder="Role" value={exp.role} onChange={e => patch(`experience.${i}.role`, e.target.value) } />
+                                            </div>
+                                            <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
+                                                <input style={{ ...S.inp, flex: 1 }} placeholder="Start" value={exp.start} onChange={e => patch(`experience.${i}.start`, e.target.value) } />
+                                                <input style={{ ...S.inp, flex: 1 }} placeholder="End" value={exp.end} onChange={e => patch(`experience.${i}.end`, e.target.value) } />
+                                            </div>
+                                            <textarea style={{ ...S.inp, marginTop: 10, minHeight: 60 }} placeholder="Bullet points" value={exp.bullets.join("\n")} onChange={e => patch(`experience.${i}.bullets`, e.target.value.split("\n"))} />
+                                            <button style={{ ...S.btn("danger"), marginTop: 10 }} onClick={() => removeExperience(exp.id)}>Remove</button>
+                                        </div>
+                                    ))}
+                                    <button style={S.btn("primary")} onClick={addExperience}>+ Add Experience</button>
+                                </div>
+                            )}
+                            {tab === "skills" && (
+                                <div style={S.card}>
+                                    <h3 style={{ fontSize: 11, color: T.muted, marginBottom: 11 }}>Skills</h3>
+                                    <input style={S.inp} placeholder="Technical (comma separated)" value={cv.skills.technical.join(", ")} onChange={e => patch("skills.technical", e.target.value.split(", ").filter(Boolean))} />
+                                    <input style={{ ...S.inp, marginTop: 10 }} placeholder="Tools (comma separated)" value={cv.skills.tools.join(", ")} onChange={e => patch("skills.tools", e.target.value.split(", ").filter(Boolean))} />
+                                </div>
+                            )}
+                            {tab === "education" && (
+                                <div style={S.card}>
+                                    <h3 style={{ fontSize: 11, color: T.muted, marginBottom: 11 }}>Education</h3>
+                                    {cv.education.map((edu, i) => (
+                                        <div key={edu.id} style={{ marginBottom: 10 }}>
+                                            <input style={S.inp} placeholder="Institution" value={edu.institution} onChange={e => patch(`education.${i}.institution`, e.target.value)} />
+                                            <input style={{ ...S.inp, marginTop: 10 }} placeholder="Degree" value={edu.degree} onChange={e => patch(`education.${i}.degree`, e.target.value)} />
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        {showPreview && (
+                            <div style={{ width: 390, borderLeft: `1px solid ${T.border}`, overflowY: "auto", padding: 20, background: "#f4f3f0", color: "#1a1a2a" }}>
+                                <div style={{ textAlign: "center", marginBottom: 15 }}>
+                                    <div style={{ fontSize: 17, fontWeight: 700 }}>{cv.personal.name || "Your Name"}</div>
+                                    {cv.personal.title && <div style={{ fontSize: 11, color: "#4a3aaa", marginTop: 2 }}>{cv.personal.title}</div>}
+                                </div>
+                                {cv.personal.summary && <div style={{ fontSize: 10, marginBottom: 15 }}>{cv.personal.summary}</div>}
+                                <div style={{ fontSize: 9, fontWeight: 700, color: "#4a3aaa", borderBottom: "1.5px solid #4a3aaa", paddingBottom: 2, marginBottom: 7 }}>EXPERIENCE</div>
+                                {cv.experience.map(e => (
+                                    <div key={e.id} style={{ marginBottom: 8 }}>
+                                        <div style={{ fontWeight: 600, fontSize: 11 }}>{e.role}</div>
+                                        <div style={{ fontSize: 10, color: "#4a3aaa" }}>{e.company}</div>
+                                        <div style={{ fontSize: 9, color: "#666" }}>{e.start} - {e.end}</div>
+                                    </div>
+                                ))}
+                                <div style={{ fontSize: 9, fontWeight: 700, color: "#4a3aaa", borderBottom: "1.5px solid #4a3aaa", paddingBottom: 2, marginBottom: 7, marginTop: 13 }}>SKILLS</div>
+                                {cv.skills.technical.length > 0 && <div style={{ fontSize: 10 }}><b>Technical:</b> {cv.skills.technical.join(", ")}</div>}
+                                {cv.skills.tools.length > 0 && <div style={{ fontSize: 10 }}><b>Tools:</b> {cv.skills.tools.join(", ")}</div>}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById("cv-studio-root"));
+        root.render(<CVStudio />);
+    </script>
+</body>
+</html>
