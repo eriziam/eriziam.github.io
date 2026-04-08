@@ -205,6 +205,103 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+}
+
+.sort-controls label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.sort-controls select {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    background: var(--bg-hover);
+    border: none;
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+}
+
+.search-input:focus {
+    outline: 2px solid var(--accent);
+}
+
+.search-input::placeholder {
+    color: var(--text-secondary);
+}
+
+.eq-controls {
+    display: flex;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.eq-btn {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    background: var(--bg-hover);
+    color: var(--text-secondary);
+    transition: background 0.2s, color 0.2s;
+}
+
+.eq-btn:hover {
+    background: var(--bg-tertiary);
+}
+
+.eq-btn.active {
+    background: var(--accent);
+    color: #000;
+}
+
+.empty-queue {
+    text-align: center;
+    color: var(--text-secondary);
+    padding: 2rem;
+}
+
+.clear-queue-btn {
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    background: transparent;
+    border: 1px solid #e74c3c;
+    color: #e74c3c;
+    font-size: 0.75rem;
+}
+
+.remove-queue {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+}
+
+.remove-queue:hover {
+    color: #e74c3c;
 }
 
 .genre-btn {
@@ -449,8 +546,36 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
 .play-count {
     font-size: 0.75rem;
     color: var(--text-secondary);
-    min-width: 60px;
+    min-width: 40px;
     text-align: right;
+}
+
+.fav-btn, .queue-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s, color 0.2s;
+    cursor: pointer;
+}
+
+.track-list li:hover .fav-btn,
+.track-list li:hover .queue-btn {
+    opacity: 1;
+}
+
+.fav-btn.active {
+    color: #e74c3c;
+    opacity: 1;
+}
+
+.queue-btn.active {
+    color: var(--accent);
+    opacity: 1;
 }
 
 .genre-tag {

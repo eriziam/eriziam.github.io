@@ -54,13 +54,16 @@
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-view="home"><i class="fas fa-home"></i> Home</a>
+                <a href="#" class="nav-item" data-view="queue"><i class="fas fa-list"></i> Queue</a>
                 <a href="#" class="nav-item" data-view="ranking"><i class="fas fa-trophy"></i> Ranking</a>
             </nav>
             <div class="sidebar-section">
-                <div class="section-header">
-                    <span>Genres</span>
-                </div>
+                <div class="section-header"><span>Filter</span></div>
                 <div id="genre-filter" class="genre-list"></div>
+            </div>
+            <div class="sidebar-section">
+                <div class="section-header"><span>Search</span></div>
+                <input type="text" id="search-input" class="search-input" placeholder="Search songs...">
             </div>
         </aside>
 
@@ -77,15 +80,11 @@
 
             <div class="content-area">
                 <section id="home-view" class="view">
-                    <div class="greeting">
-                        <h1>Good evening</h1>
-                    </div>
+                    <div class="greeting"><h1>Good evening</h1></div>
 
                     <div class="now-playing-section">
                         <div class="now-playing-card">
-                            <div class="np-art">
-                                <i class="fas fa-music"></i>
-                            </div>
+                            <div class="np-art"><i class="fas fa-music"></i></div>
                             <div class="np-info">
                                 <span class="np-label">Now Playing</span>
                                 <h2 id="current-title">Select a song</h2>
@@ -95,10 +94,18 @@
                     </div>
 
                     <div class="section-header">
-                        <h2>Songs</h2>
+                        <h2 id="songs-header">Songs</h2>
                         <span id="track-count" class="track-count">17 tracks</span>
                     </div>
                     <ul id="playlist" class="track-list"></ul>
+                </section>
+
+                <section id="queue-view" class="view hidden">
+                    <div class="section-header">
+                        <h2>Queue</h2>
+                        <button class="save-btn" id="clear-queue">Clear All</button>
+                    </div>
+                    <p class="empty-queue">Queue is empty - add songs from Home</p>
                 </section>
 
                 <section id="ranking-view" class="view hidden">
@@ -114,9 +121,7 @@
 
         <div class="player-bar">
             <div class="player-track">
-                <div class="player-art">
-                    <i class="fas fa-music"></i>
-                </div>
+                <div class="player-art"><i class="fas fa-music"></i></div>
                 <div class="player-info">
                     <span class="player-title" id="player-title">Select a song</span>
                     <span class="player-status" id="player-status">-</span>
@@ -132,9 +137,7 @@
                 </div>
                 <div class="progress-container">
                     <span id="current-time">0:00</span>
-                    <div class="progress" id="progress-bar">
-                        <div id="progress-fill"></div>
-                    </div>
+                    <div class="progress" id="progress-bar"><div id="progress-fill"></div></div>
                     <span id="duration">0:00</span>
                 </div>
             </div>
@@ -147,7 +150,6 @@
     </div>
 
     <audio id="audio"></audio>
-
     <script src="js/music.js"></script>
 </body>
 </html>

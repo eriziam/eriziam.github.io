@@ -1,21 +1,21 @@
 const songs = [
-    { file: "Beemka Metalik.mp3", title: "Beemka Metalik" },
-    { file: "Bermuda Triangle.mp3", title: "Bermuda Triangle" },
-    { file: "Don\u2019t Let Go.mp3", title: "Don\u2019t Let Go" },
-    { file: "Gumisiowy Sok.mp3", title: "Gumisiowy Sok" },
-    { file: "Heartbreak is mean.mp3", title: "Heartbreak is mean" },
-    { file: "Kr\u00f3lowie bez ruch\u00f3w.mp3", title: "Kr\u00f3lowie bez ruch\u00f3w" },
-    { file: "London Rain.mp3", title: "London Rain" },
-    { file: "Lodowaty Monster.mp3", title: "Lodowaty Monster" },
-    { file: "Midnight Highway.mp3", title: "Midnight Highway" },
-    { file: "Ni Hao Neon.mp3", title: "Ni Hao Neon" },
-    { file: "Ohne Erwachen.mp3", title: "Ohne Erwachen" },
-    { file: "Paper Planes.mp3", title: "Paper Planes" },
-    { file: "Precious You\u2019re Safe.mp3", title: "Precious You\u2019re Safe" },
-    { file: "Red Light Fugue.mp3", title: "Red Light Fugue" },
-    { file: "Sunlight Reflection.mp3", title: "Sunlight Reflection" },
-    { file: "Think about tomorrow.mp3", title: "Think about tomorrow" },
-    { file: "Train No Destination.mp3", title: "Train No Destination" }
+    { file: "Beemka Metalik.mp3", title: "Beemka Metalik", eq: "metal" },
+    { file: "Bermuda Triangle.mp3", title: "Bermuda Triangle", eq: "pop" },
+    { file: "Don\u2019t Let Go.mp3", title: "Don\u2019t Let Go", eq: "pop" },
+    { file: "Gumisiowy Sok.mp3", title: "Gumisiowy Sok", eq: "synthwave" },
+    { file: "Heartbreak is mean.mp3", title: "Heartbreak is mean", eq: "lofi" },
+    { file: "Kr\u00f3lowie bez ruch\u00f3w.mp3", title: "Kr\u00f3lowie bez ruch\u00f3w", eq: "pop" },
+    { file: "London Rain.mp3", title: "London Rain", eq: "lofi" },
+    { file: "Lodowaty Monster.mp3", title: "Lodowaty Monster", eq: "ambient" },
+    { file: "Midnight Highway.mp3", title: "Midnight Highway", eq: "metal" },
+    { file: "Ni Hao Neon.mp3", title: "Ni Hao Neon", eq: "synthwave" },
+    { file: "Ohne Erwachen.mp3", title: "Ohne Erwachen", eq: "metal" },
+    { file: "Paper Planes.mp3", title: "Paper Planes", eq: "pop" },
+    { file: "Precious You\u2019re Safe.mp3", title: "Precious You\u2019re Safe", eq: "ambient" },
+    { file: "Red Light Fugue.mp3", title: "Red Light Fugue", eq: "electronic" },
+    { file: "Sunlight Reflection.mp3", title: "Sunlight Reflection", eq: "ambient" },
+    { file: "Think about tomorrow.mp3", title: "Think about tomorrow", eq: "lofi" },
+    { file: "Train No Destination.mp3", title: "Train No Destination", eq: "lofi" }
 ];
 
 const CORRECT_PASSWORD = "eriz2025";
@@ -23,6 +23,9 @@ const STORAGE_KEY = "music_vault_rankings";
 const PASSWORD_KEY = "music_vault_auth";
 const GENRES_KEY = "music_vault_genres";
 const PLAYS_KEY = "music_vault_plays";
+const FAVES_KEY = "music_vault_faves";
+const QUEUE_KEY = "music_vault_queue";
+const RECENT_KEY = "music_vault_recent";
 
 let currentIndex = -1;
 let isPlaying = false;
@@ -32,6 +35,11 @@ let rankings = [];
 let genres = {};
 let playCounts = {};
 let activeFilter = "all";
+let sortBy = "default";
+let queue = [];
+let recentPlays = [];
+let favorites = new Set();
+let currentEq = "flat";
 
 const audio = document.getElementById("audio");
 const gate = document.getElementById("gate");
@@ -43,6 +51,7 @@ const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
 const shuffleBtn = document.getElementById("shuffle-btn");
 const loopBtn = document.getElementById("loop-btn");
+const queueBtn = document.getElementById("queue-btn");
 const currentTitle = document.getElementById("current-title");
 const currentStatus = document.getElementById("current-status");
 const currentTimeEl = document.getElementById("current-time");
@@ -52,6 +61,18 @@ const progressBar = document.getElementById("progress-bar");
 const volumeSlider = document.getElementById("volume");
 const trackCount = document.getElementById("track-count");
 const genreFilterEl = document.getElementById("genre-filter");
+
+// EQ presets
+const eqPresets = {
+    flat: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    pop: [-1, 1, 3, 4, 3, 1, -1, -1, -1, -1],
+    rock: [3, 2, 1, 0, -1, 0, 1, 2, 3, 3],
+    lofi: [-2, -1, 0, 1, 2, 2, 1, 0, -1, -2],
+    ambient: [-2, -2, -1, 0, 1, 2, 3, 3, 2, 1],
+    metal: [4, 3, 1, 0, -2, -1, 0, 1, 2, 3],
+    synthwave: [2, 3, 1, -1, -2, -1, 0, 2, 4, 3],
+    electronic: [3, 2, 0, -1, -2, -1, 0, 2, 3, 3]
+};
 
 function checkAuth() {
     const savedAuth = localStorage.getItem(PASSWORD_KEY);
@@ -79,6 +100,10 @@ document.getElementById("gate-form").addEventListener("submit", (e) => {
         input.value = "";
     }
 });
+
+function sanitizeKey(str) {
+    return str.replace(/[^a-zA-Z0-9]/g, '_');
+}
 
 async function loadGenres() {
     const saved = localStorage.getItem(GENRES_KEY);
@@ -127,23 +152,57 @@ function getAllGenres() {
 
 function filterSongsByGenre(genre) {
     if (genre === "all") return songs;
+    if (genre === "favorites") return songs.filter(s => favorites.has(s.title));
+    if (genre === "recent") return recentPlays.map(t => songs.find(s => s.title === t)).filter(Boolean);
     return songs.filter(s => getSongGenres(s.title).includes(genre));
 }
 
+function sortSongs(songList) {
+    if (sortBy === "plays") {
+        return [...songList].sort((a, b) => (playCounts[b.title] || 0) - (playCounts[a.title] || 0));
+    }
+    if (sortBy === "title") {
+        return [...songList].sort((a, b) => a.title.localeCompare(b.title));
+    }
+    if (sortBy === "ranking") {
+        const ranked = [...songList].sort((a, b) => {
+            const aRank = rankings.find(r => r.title === a.title)?.rank || 999;
+            const bRank = rankings.find(r => r.title === b.title)?.rank || 999;
+            return aRank - bRank;
+        });
+        return ranked;
+    }
+    return songList;
+}
+
 function getFilteredSongs() {
-    return filterSongsByGenre(activeFilter);
+    return sortSongs(filterSongsByGenre(activeFilter));
 }
 
 async function initApp() {
     await loadGenres();
-    await loadPlayCounts();
+    loadPlayCounts();
+    loadUserData();
     renderGenreFilter();
     loadRankings();
     renderPlaylist();
     renderRanking();
+    updateQueueDisplay();
     trackCount.textContent = `${getFilteredSongs().length} tracks`;
     setupViewNav();
+    setupEqualizer();
     audio.volume = 0.7;
+}
+
+function loadUserData() {
+    const savedFaves = localStorage.getItem(FAVES_KEY);
+    if (savedFaves) favorites = new Set(JSON.parse(savedFaves));
+    
+    const savedQueue = localStorage.getItem(QUEUE_KEY);
+    if (savedQueue) queue = JSON.parse(savedQueue);
+    
+    const savedRecent = localStorage.getItem(RECENT_KEY);
+    if (savedRecent) recentPlays = JSON.parse(savedRecent);
 }
 
 function setupViewNav() {
@@ -159,12 +218,56 @@ function setupViewNav() {
     });
 }
 
+function setupEqualizer() {
+    const eqBtns = document.querySelectorAll(".eq-btn");
+    if (eqBtns.length === 0) {
+        const nowPlayingSection = document.querySelector(".now-playing-section");
+        if (nowPlayingSection) {
+            const eqHtml = `
+                <div class="eq-controls">
+                    <button class="eq-btn active" data-eq="flat">Flat</button>
+                    <button class="eq-btn" data-eq="pop">Pop</button>
+                    <button class="eq-btn" data-eq="rock">Rock</button>
+                    <button class="eq-btn" data-eq="lofi">Lo-Fi</button>
+                    <button class="eq-btn" data-eq="ambient">Ambient</button>
+                    <button class="eq-btn" data-eq="metal">Metal</button>
+                </div>
+            `;
+            nowPlayingSection.insertAdjacentHTML("beforeend", eqHtml);
+            
+            document.querySelectorAll(".eq-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    currentEq = btn.dataset.eq;
+                    document.querySelectorAll(".eq-btn").forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+                });
+            });
+        }
+    }
+}
+
 function renderGenreFilter() {
     const allGenres = getAllGenres();
-    let html = `<button class="genre-btn active" data-genre="all">All</button>`;
+    let html = `
+        <button class="genre-btn active" data-genre="all">All</button>
+        <button class="genre-btn" data-genre="favorites">Favorites</button>
+        <button class="genre-btn" data-genre="recent">Recent</button>
+        <button class="genre-btn" data-genre="plays">Top Played</button>
+    `;
     for (const g of allGenres) {
         html += `<button class="genre-btn" data-genre="${g}">${g}</button>`;
     }
+    html += `
+        <div class="sort-controls">
+            <label>Sort:</label>
+            <select id="sort-select">
+                <option value="default">Default</option>
+                <option value="title">Title</option>
+                <option value="plays">Most Plays</option>
+                <option value="ranking">Your Rank</option>
+            </select>
+        </div>
+    `;
     genreFilterEl.innerHTML = html;
     
     genreFilterEl.querySelectorAll(".genre-btn").forEach(btn => {
@@ -176,6 +279,14 @@ function renderGenreFilter() {
             trackCount.textContent = `${getFilteredSongs().length} tracks`;
         });
     });
+    
+    const sortSelect = document.getElementById("sort-select");
+    if (sortSelect) {
+        sortSelect.addEventListener("change", () => {
+            sortBy = sortSelect.value;
+            renderPlaylist();
+        });
+    }
 }
 
 function renderPlaylist() {
@@ -183,7 +294,9 @@ function renderPlaylist() {
     playlistEl.innerHTML = filtered.map((song, i) => {
         const songGenres = getSongGenres(song.title);
         const genreTags = songGenres.map(g => `<span class="genre-tag">${g}</span>`).join("");
-        const playCount = getPlayCount(song.title);
+        const playCount = playCounts[song.title] || 0;
+        const isFav = favorites.has(song.title);
+        const inQueue = queue.includes(song.title);
         return `
         <li data-index="${songs.indexOf(song)}" class="${songs.indexOf(song) === currentIndex ? 'active' : ''}">
             <span class="track-num">${i + 1}</span>
@@ -191,7 +304,13 @@ function renderPlaylist() {
                 <span class="track-title">${song.title}</span>
                 <span class="track-genres">${genreTags}</span>
             </div>
-            <span class="play-count">${playCount} plays</span>
+            <span class="play-count">${playCount}</span>
+            <button class="fav-btn ${isFav ? 'active' : ''}" data-title="${song.title}" title="Favorite">
+                <i class="fas fa-heart"></i>
+            </button>
+            <button class="queue-btn ${inQueue ? 'active' : ''}" data-title="${song.title}" title="Add to Queue">
+                <i class="fas fa-list"></i>
+            </button>
             <button class="play-track" data-index="${songs.indexOf(song)}"><i class="fas fa-play"></i></button>
         </li>
     `;
@@ -200,6 +319,77 @@ function renderPlaylist() {
     playlistEl.querySelectorAll(".play-track").forEach(btn => {
         btn.addEventListener("click", () => playTrack(parseInt(btn.dataset.index)));
     });
+    
+    playlistEl.querySelectorAll(".fav-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleFavorite(btn.dataset.title);
+        });
+    });
+    
+    playlistEl.querySelectorAll(".queue-btn").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            addToQueue(btn.dataset.title);
+        });
+    });
+}
+
+function toggleFavorite(title) {
+    if (favorites.has(title)) {
+        favorites.delete(title);
+    } else {
+        favorites.add(title);
+    }
+    localStorage.setItem(FAVES_KEY, JSON.stringify([...favorites]));
+    renderPlaylist();
+}
+
+function addToQueue(title) {
+    if (!queue.includes(title)) {
+        queue.push(title);
+        localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+        updateQueueDisplay();
+        renderPlaylist();
+    }
+}
+
+function removeFromQueue(index) {
+    queue.splice(index, 1);
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+    updateQueueDisplay();
+    renderPlaylist();
+}
+
+function updateQueueDisplay() {
+    const queueSection = document.getElementById("queue-view");
+    if (queueSection) {
+        queueSection.innerHTML = queue.length ? `
+            <div class="section-header">
+                <h2>Queue (${queue.length})</h2>
+                <button class="clear-queue-btn" id="clear-queue">Clear All</button>
+            </div>
+            <ul class="track-list">
+                ${queue.map((title, i) => `
+                    <li>
+                        <span class="track-num">${i + 1}</span>
+                        <span class="track-title">${title}</span>
+                        <button class="remove-queue" data-index="${i}"><i class="fas fa-times"></i></button>
+                    </li>
+                `).join("")}
+            </ul>
+        ` : '<p class="empty-queue">Queue is empty</p>';
+        
+        document.getElementById("clear-queue")?.addEventListener("click", () => {
+            queue = [];
+            localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+            updateQueueDisplay();
+        });
+        
+        queueSection.querySelectorAll(".remove-queue").forEach(btn => {
+            btn.addEventListener("click", () => removeFromQueue(parseInt(btn.dataset.index)));
+        });
+    }
 }
 
 async function playTrack(index) {
@@ -209,56 +399,20 @@ async function playTrack(index) {
     document.getElementById("player-title").textContent = songs[index].title;
     document.getElementById("player-status").textContent = "Now playing";
     currentStatus.textContent = "Now playing";
+    currentEq = songs[index].eq || "flat";
     
+    addToRecent(songs[index].title);
     await incrementPlayCount(songs[index].title);
     renderPlaylist();
     togglePlay(true);
     audio.play();
 }
 
-async function loadPlayCounts() {
-    playCounts = {};
-    
-    if (!window.firebaseDb) {
-        console.log("Firebase not configured - using local counts");
-        const localSaved = localStorage.getItem(PLAYS_KEY);
-        const savedCounts = localSaved ? JSON.parse(localSaved) : {};
-        for (const song of songs) {
-            playCounts[song.title] = savedCounts[song.title] || 0;
-        }
-        return;
-    }
-    
-    for (const song of songs) {
-        const songRef = window.firebaseRef(window.firebaseDb, `plays/${song.file}`);
-        window.firebaseOnValue(songRef, (snapshot) => {
-            playCounts[song.title] = snapshot.val() || 0;
-            renderPlaylist();
-        });
-    }
-}
-
-async function incrementPlayCount(title) {
-    if (!window.firebaseDb) {
-        playCounts[title] = (playCounts[title] || 0) + 1;
-        const localSaved = JSON.parse(localStorage.getItem(PLAYS_KEY) || '{}');
-        localSaved[title] = playCounts[title];
-        localStorage.setItem(PLAYS_KEY, JSON.stringify(localSaved));
-        renderPlaylist();
-        return;
-    }
-    
-    const song = songs.find(s => s.title === title);
-    if (!song) return;
-    
-    const songRef = window.firebaseRef(window.firebaseDb, `plays/${song.file}`);
-    await window.firebaseTransaction(songRef, (currentCount) => {
-        return (currentCount || 0) + 1;
-    });
-}
-
-function getPlayCount(title) {
-    return playCounts[title] || 0;
+function addToRecent(title) {
+    recentPlays = recentPlays.filter(t => t !== title);
+    recentPlays.unshift(title);
+    recentPlays = recentPlays.slice(0, 10);
+    localStorage.setItem(RECENT_KEY, JSON.stringify(recentPlays));
 }
 
 function togglePlay(play) {
@@ -281,10 +435,18 @@ prevBtn.addEventListener("click", () => {
 });
 
 nextBtn.addEventListener("click", () => {
-    const filtered = getFilteredSongs();
-    const currFilteredIndex = filtered.findIndex(s => songs.indexOf(s) === currentIndex);
-    const nextFilteredIndex = currFilteredIndex < filtered.length - 1 ? currFilteredIndex + 1 : 0;
-    playTrack(songs.indexOf(filtered[nextFilteredIndex]));
+    if (queue.length > 0) {
+        const nextTitle = queue.shift();
+        localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+        const nextIndex = songs.findIndex(s => s.title === nextTitle);
+        updateQueueDisplay();
+        playTrack(nextIndex);
+    } else {
+        const filtered = getFilteredSongs();
+        const currFilteredIndex = filtered.findIndex(s => songs.indexOf(s) === currentIndex);
+        const nextFilteredIndex = currFilteredIndex < filtered.length - 1 ? currFilteredIndex + 1 : 0;
+        playTrack(songs.indexOf(filtered[nextFilteredIndex]));
+    }
 });
 
 shuffleBtn.addEventListener("click", () => {
@@ -314,7 +476,9 @@ audio.addEventListener("loadedmetadata", () => {
 });
 
 audio.addEventListener("ended", () => {
-    if (!isLooping) {
+    if (queue.length > 0) {
+        nextBtn.click();
+    } else if (!isLooping) {
         const filtered = getFilteredSongs();
         const currFilteredIndex = filtered.findIndex(s => songs.indexOf(s) === currentIndex);
         const nextFilteredIndex = currFilteredIndex < filtered.length - 1 ? currFilteredIndex + 1 : 0;
@@ -339,6 +503,49 @@ function formatTime(s) {
 volumeSlider.addEventListener("input", () => {
     audio.volume = volumeSlider.value;
 });
+
+async function loadPlayCounts() {
+    playCounts = {};
+    
+    if (!window.firebaseDb) {
+        console.log("Firebase not configured - using local counts");
+        const localSaved = localStorage.getItem(PLAYS_KEY);
+        const savedCounts = localSaved ? JSON.parse(localSaved) : {};
+        for (const song of songs) {
+            playCounts[song.title] = savedCounts[song.title] || 0;
+        }
+        return;
+    }
+    
+    for (const song of songs) {
+        const safeKey = sanitizeKey(song.title);
+        const songRef = window.firebaseRef(window.firebaseDb, `plays/${safeKey}`);
+        window.firebaseOnValue(songRef, (snapshot) => {
+            playCounts[song.title] = snapshot.val() || 0;
+            renderPlaylist();
+        });
+    }
+}
+
+async function incrementPlayCount(title) {
+    const song = songs.find(s => s.title === title);
+    if (!song) return;
+    
+    if (!window.firebaseDb) {
+        playCounts[title] = (playCounts[title] || 0) + 1;
+        const localSaved = JSON.parse(localStorage.getItem(PLAYS_KEY) || '{}');
+        localSaved[title] = playCounts[title];
+        localStorage.setItem(PLAYS_KEY, JSON.stringify(localSaved));
+        renderPlaylist();
+        return;
+    }
+    
+    const safeKey = sanitizeKey(song.title);
+    const songRef = window.firebaseRef(window.firebaseDb, `plays/${safeKey}`);
+    await window.firebaseTransaction(songRef, (currentCount) => {
+        return (currentCount || 0) + 1;
+    });
+}
 
 function loadRankings() {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -380,9 +587,7 @@ function renderRanking() {
 function setupDragDrop() {
     const items = rankingEl.querySelectorAll("li");
     items.forEach(item => {
-        item.addEventListener("dragstart", () => {
-            item.classList.add("dragging");
-        });
+        item.addEventListener("dragstart", () => item.classList.add("dragging"));
         item.addEventListener("dragend", () => {
             item.classList.remove("dragging");
             updateRankings();
@@ -401,9 +606,7 @@ function getDragAfterElement(container, y) {
     return draggableElements.reduce((closest, child) => {
         const box = child.getBoundingClientRect();
         const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) {
-            return { offset, element: child };
-        }
+        if (offset < 0 && offset > closest.offset) return { offset, element: child };
         return closest;
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
@@ -419,7 +622,7 @@ function updateRankings() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rankings));
 }
 
-document.getElementById("save-rankings").addEventListener("click", () => {
+document.getElementById("save-rankings")?.addEventListener("click", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rankings));
     const btn = document.getElementById("save-rankings");
     btn.textContent = "Saved!";
