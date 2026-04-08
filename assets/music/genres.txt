@@ -1,0 +1,34 @@
+# Music Genres Configuration
+# Format: filename = genre1, genre2, ...
+
+# Phonk
+Midnight Highway = phonk, dark trap
+Red Light Fugue = phonk, dark trap
+
+# House
+Don't Let Go = House, House
+Think about tomorrow = House, House
+
+# Trance
+Ohne Erwachen = Trance, German Trance
+Sunlight Reflection = Trance, German Trance
+
+# Vixa
+Gumisiowy Sok = Vixa, Vixapol
+Ni Hao Neon = Vixa, Vixapol
+Lodowaty Monster = Vixa, Vixapol
+
+
+
+
+# Rap / Trap
+Beemka Metalik = Rap, Trap
+Królowie bez ruchów = Rap, Trap
+London Rain = Rap, Trap
+
+# UK Drill / UK Grime
+Heartbreak is mean = UK Drill, UK Grime
+Train No Destination = UK Drill, UK Grime
+Bermuda Triangle = UK Drill, UK Grime
+Paper Planes = UK Drill, UK Grime
+Precious You're Safe = UK Drill, UK Grime
