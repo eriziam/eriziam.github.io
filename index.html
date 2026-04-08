@@ -1,210 +1,3 @@
-<<<<<<< HEAD
-<!DOCTYPE html>
-<head>
-    <meta charset="utf-8">
-    <meta name="description" content="">
-    <meta name="author" content="Eryk Kirzanowski aka Eriz">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#000">
-
-    <script defer="" src="https://use.fontawesome.com/releases/v5.7.1/js/all.js" integrity="sha384-eVEQC9zshBn0rFj4+TU78eNA19HMNigMviK/PU/FFjLXqa/GKPgX58rvt5Z8PLs7" crossorigin="anonymous"></script>
-    <link href="https://fonts.googleapis.com/css?family=Hind+Madurai|Kanit|Michroma&display=swap" rel="stylesheet">
-    <title>Eryk Kirzanowski — IT Enthusiast</title>
-    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="stylesheet" href="assets/css/anim.css">
-    <script type="text/javascript" src="assets/js/script.js"></script>
-    <script>
-    window.addEventListener('DOMContentLoaded', function() {
-      const nav = document.querySelector('nav');
-      let ticking = false;
-      function onScroll() {
-        if (window.scrollY > 50) {
-          nav.classList.add('nav-scrolled');
-        } else {
-          nav.classList.remove('nav-scrolled');
-          nav.style.position = '';
-        }
-      }
-      window.addEventListener('scroll', function() {
-        if (!ticking) {
-          window.requestAnimationFrame(function() {
-            onScroll();
-            ticking = false;
-          });
-          ticking = true;
-        }
-      });
-      onScroll();
-    });
-    </script>
-   </head>
-    <body>
-        <nav>        
-            <a href="#"><img id="e" src="assets/logo.png" height="20"></a>
-            <!-- <a href="?about">About</a> -->
-            <!-- <a href="assets/docs/resume.pdf">Resume</a> -->
-            <a href="#education">Education</a>
-            <a href="#workexperience">Work Experience</a>
-            <a href="#personalstatement">Personal Statement</a>
-            <a href="#projects">Projects</a>
-            <a href="https://www.linkedin.com/in/eryk-kirzanowski/"><i class="fab fa-linkedin"></i></a>
-            <a href="https://github.com/Nobzie"><i class="fab fa-github"></i></a>
-        </nav>
-    
-            <div class="container">
-                <h4>Eryk 'Eriz' Kirzanowski — IT Enthusiast</h4>
-                <h3>Using <h3 class="b">simplicity</h3><h3> and building projects from <h3 class="b">scratch</h3>.</h3>
-                <!-- <p>Currently working on <a href="http://eriz.atwebpages.com/">this</a> website.<p> -->
-                <p>I love developing projects from scratch.<br>
-                I particularize in simple and responsive web design solutions, and for now I have focused on how far you can take caching a website on a mobile to make a fully responsible, cross-platform multipurpose application with a lot of functionalities.<br>
-                A fan of pure HTML, CSS & JavaScript, as well as Java, C# and Python. 
-                Apart from my passion, I enjoy to surf the web, play video games and listen to music.</p>
-            </div>
-            <div id="education" class="container section-bg">
-                        <div class="section">
-                                <h3>Education</h3>
-                                <div class="timeline">
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <h4>Solihull College & University Centre - Solihull</h4>
-                                            <span class="timeline-date">Sep. 2018 - July 2019</span>
-                                            <p>A-Level or equivalent<br>BTEC Level 3 Extended 90 Credit Diploma Computing</p>
-                                            <p><b>Grade:</b> D*D*D*</p>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <h4>Solihull College & University Centre - Solihull</h4>
-                                            <span class="timeline-date">Sep. 2017 - July 2018</span>
-                                            <p>A-Level or equivalent<br>BTEC Level 3 Foundation 90 Credit Diploma Computing</p>
-                                            <p><b>Grade:</b> D*</p>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <h4>Solihull College & University Centre - Solihull</h4>
-                                            <span class="timeline-date">Sep. 2016 - July 2017</span>
-                                            <p>Diploma of Higher Education<br>Cambridge Technical Diploma in IT OCR Level 2</p>
-                                            <p><b>Grade:</b> D</p>
-                                        </div>
-                                    </div>
-                                    <div class="timeline-item">
-                                        <div class="timeline-dot"></div>
-                                        <div class="timeline-content">
-                                            <h4>Harborne Academy - Birmingham</h4>
-                                            <span class="timeline-date">Dec. 2013 - July 2016</span>
-                                            <p><b>English:</b> D<br><b>Mathematics:</b> C<br><b>ECDL:</b> D*</p>
-                                        </div>
-                                    </div>
-                                </div>
-                        </div>
-
-                        <div id="workexperience" class="section section-bg">
-                            <h3>Work Experience</h3>
-                            <div class="work-list">
-                                <div class="work-item">
-                                    <h4>Supply Teacher & Teaching Assistant</h4>
-                                    <span class="work-meta">Aspire People — Nuneaton | Feb 2025 – May 2025</span>
-                                    <p>I was responsible for managing student behaviour in the classroom, helping maintain a focused and respectful learning environment. My role included both leading classes independently and supporting teachers, ensuring pupils stayed engaged and on task. This position required strong classroom management, communication, and the ability to adapt quickly to different teaching styles and student needs.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>Device Technician</h4>
-                                    <span class="work-meta">Smart Cherry Mobiles Ltd. — Nuneaton | Sep 2023 – Jun 2024</span>
-                                    <p>I was responsible for overseeing the smartphone trade-in process, ensuring efficient evaluation and smooth handling of devices from customers to the company. My role involved assessing item value, negotiating fair terms, customer service in person, over the phone, email, and live chat, and securing a seamless transaction experience. I consistently aimed to maximise trade-in value while delivering exceptional customer service and maintaining strong profitability.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>General Maintenance Worker</h4>
-                                    <span class="work-meta">Chaplin Bros (Birmingham) Ltd. — Sutton Coldfield | Jun 2023 – Jul 2023</span>
-                                    <p>I assisted in relocating office equipment and supplies between buildings, ensuring the safe and efficient transport of all items. My responsibilities included groundskeeping tasks such as weed removal and bush trimming to maintain a professional exterior environment. I also performed painting work on machinery, adhering strictly to safety protocols and using the appropriate protective equipment.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>Production Assistant</h4>
-                                    <span class="work-meta">Chaplin Bros (Birmingham) Ltd. — Sutton Coldfield | May 2022 – Jun 2022</span>
-                                    <p>I was involved in wire production support, assisting with reeling, labelling, and packaging to meet client specifications. I performed quality assurance checks to ensure consistency and accuracy throughout the process. Additionally, I operated machinery to ensure the wire output matched exact client requirements, demonstrating attention to detail and technical precision.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>Stock Counter</h4>
-                                    <span class="work-meta">Orridge & Company Ltd. | Apr 2022 – May 2022</span>
-                                    <p>I was responsible for accurate and efficient stock counts in store sections such as Boots, Pep & Co., and Poundland. This involved using a handheld scanner as well as performing quick manual counts and data entry of stock levels on shelves and in storage. The role required strong attention to detail, speed, and the ability to work independently under time pressure.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>IT Tutor</h4>
-                                    <span class="work-meta">King Solomon International Business School — Birmingham | Jul 2019 – Aug 2021</span>
-                                    <p>In the summer of 2019, I volunteered at a Summer Code Camp, where I taught children the fundamentals of coding using simple, non-technical language to ensure accessibility. During my time at Aston University, I also hosted my own Java programming sessions at a local high school using the Processing environment. I independently created all the teaching materials, demonstrating strong communication, initiative, and the ability to deliver engaging and effective instruction.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>Production Assistant</h4>
-                                    <span class="work-meta">Chaplin Bros (Birmingham) Ltd. — Sutton Coldfield | Jun 2021 – Jul 2021</span>
-                                    <p>I was involved in wire production support, assisting with reeling, labelling, and packaging to meet client specifications. I performed quality assurance checks to ensure consistency and accuracy throughout the process. Additionally, I operated machinery to ensure the wire output matched exact client requirements, demonstrating attention to detail and technical precision.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>Web Developer</h4>
-                                    <span class="work-meta">Ace Hub @ Solihull College — Solihull | Nov 2018 – Feb 2019</span>
-                                    <p>In my final year of college, I took the initiative to start a web development project for a live business. The task involved either redesigning the existing website or building a new one from scratch for a hair and beauty salon called Born Beautiful. The goal was to create a site that clearly presented all essential salon information, demonstrating my creative design skills, technical development ability, and self-motivation.</p>
-                                </div>
-                                <div class="work-item">
-                                    <h4>App Developer</h4>
-                                    <span class="work-meta">Digital Innov8ors — Birmingham | Nov 2017 – Mar 2018</span>
-                                    <p>During the second half of my Level 3 Foundation course and the holiday break, I worked on a project called Adventures in Bodiwell—an educational application designed for children. The app aimed to help users learn and understand the human body through interactive features and simplified content. This project showcased my creativity, educational focus, and ability to develop user-friendly digital experiences.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        </div>
-
-                        <div id="personalstatement" class="section section-bg">
-                                <h3>Personal Statement</h3>
-                                <div class="tab">
-                                        <p>I was born in Poland, came to the UK in 2013 and speak fluent Polish. I am a
-                                                Distinction student who is self-motivated and who always goes towards
-                                                completing goals and dreams, in addition to that I have excellent
-                                                attendance and punctuality and was awarded with Student of the Year in
-                                                2017. That could prove that I am not playing around, and that not much
-                                                can get on my way to stop me from getting to whatever my objective is.
-                                        </p>
-                                        <p>I am interested in becoming a Web Developer or a Software Engineer; so far I
-                                                got a chance to create and design interactive and really responsive
-                                                websites. I enjoy using technology when I am studying and in my free
-                                                time, as it’s really relaxing, educational and helpful. Why do I think
-                                                that I am suitable for work in IT industry? That’s very simple; I have
-                                                experience with some computing areas; I have had lots of practice on
-                                                program creating using C#, website building using pure HTML & CSS plus
-                                                JavaScript and working with bitmap and vector graphics using programs
-                                                like GIMP and Inkscape.</p>
-                                        <p>From a young age I have wanted to create video games. I played around with
-                                                Adobe Flash allowing me to create my first projects like games and
-                                                animations. I continued with it until 2015 when I moved to a little
-                                                something more interesting and advanced. AutoIT - a programming language
-                                                allowing you to create a program that would be automated to do things
-                                                for you. In 2016 I started studying at college and got to know the
-                                                basics of C#, creating simple programs and games, as well as basic HTML
-                                                which pushed me towards learning more about it and eventually creating
-                                                my own websites from scratch using my own CSS and JS libraries which I
-                                                have been producing at home. </p>
-                                        <p>Digital INnov8tors allowed me to attend business meetings where people wanted
-                                                to put their ideas into reality and had a chance to even work on one,
-                                                called “Adventures in Bodiwell”, a phone application based on the book
-                                                allowing children to learn about different internal body parts. In
-                                                September 2018 I was chosen to attend an OPG Hack Day with Digital
-                                                INnov8ors, to get the idea of what meetings and working on the projects
-                                                look like as well as participating in it and talking to many different
-                                                people who are working in different computing fields, asking them
-                                                different questions about their jobs which would help me decide what I
-                                                want to do. After that I took off and decided to be more independent and
-                                                get myself into these type of project on my own. </p>
-                                </div>
-                        </div>
-                </div>
-
-        <!-- <footer>
-            <a onclick="darkness()" style="float: left;"><i class="fas fa-adjust"></i></a>
-        </footer>  -->
-    </body>
-=======
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -251,8 +44,8 @@
             <h1>Eryk 'Eriz' Kirzanowski</h1>
             <p class="tagline">Building projects from <span class="highlight">scratch</span> with <span class="highlight">simplicity</span>.</p>
             <p class="bio">
-                I love developing projects from scratch, specializing in simple and responsive web design solutions. 
-                Currently focused on creating fully functional, cross-platform applications with rich functionalities.
+                I love developing projects from scratch, specializing in simple and responsive web solutions.
+                Currently focused on creating fully functional, cross-platform applications.
                 A fan of pure HTML, CSS & JavaScript, as well as Java, C# and Python.
             </p>
             <div class="hero-links">
@@ -310,12 +103,12 @@
                 <article class="work-item">
                     <h3>Supply Teacher & Teaching Assistant</h3>
                     <span class="meta">Aspire People — Nuneaton | Feb 2025 – May 2025</span>
-                    <p>Responsible for managing student behaviour in the classroom, helping maintain a focused and respectful learning environment. Role included both leading classes independently and supporting teachers, ensuring pupils stayed engaged and on task.</p>
+                    <p>Responsible for managing student behaviour in the classroom, helping maintain a focused and respectful learning environment. Role included both leading classes independently and supporting teachers.</p>
                 </article>
                 <article class="work-item">
                     <h3>Device Technician</h3>
                     <span class="meta">Smart Cherry Mobiles Ltd. — Nuneaton | Sep 2023 – Jun 2024</span>
-                    <p>Oversaw the smartphone trade-in process, ensuring efficient evaluation and smooth handling of devices. Role involved assessing item value, negotiating fair terms, customer service across in-person, phone, email, and live chat channels.</p>
+                    <p>Oversaw the smartphone trade-in process, ensuring efficient evaluation and smooth handling of devices. Role involved assessing item value, negotiating fair terms, customer service across channels.</p>
                 </article>
                 <article class="work-item">
                     <h3>General Maintenance Worker</h3>
@@ -330,17 +123,12 @@
                 <article class="work-item">
                     <h3>Stock Counter</h3>
                     <span class="meta">Orridge & Company Ltd. | Apr 2022 – May 2022</span>
-                    <p>Accurate and efficient stock counts in store sections such as Boots, Pep & Co., and Poundland. Used handheld scanners and performed manual counts and data entry of stock levels.</p>
+                    <p>Accurate and efficient stock counts in store sections such as Boots, Pep & Co., and Poundland. Used handheld scanners and performed manual counts and data entry.</p>
                 </article>
                 <article class="work-item">
                     <h3>IT Tutor</h3>
                     <span class="meta">King Solomon International Business School — Birmingham | Jul 2019 – Aug 2021</span>
-                    <p>Volunteered at Summer Code Camp teaching children coding fundamentals. Hosted Java programming sessions at a local high school using Processing environment. Independently created all teaching materials.</p>
-                </article>
-                <article class="work-item">
-                    <h3>Production Assistant</h3>
-                    <span class="meta">Chaplin Bros (Birmingham) Ltd. — Sutton Coldfield | Jun 2021 – Jul 2021</span>
-                    <p>Wire production support including reeling, labelling, and packaging with quality assurance checks.</p>
+                    <p>Volunteered at Summer Code Camp teaching children coding fundamentals. Hosted Java programming sessions at a local high school using Processing environment.</p>
                 </article>
                 <article class="work-item">
                     <h3>Web Developer</h3>
@@ -361,8 +149,7 @@
                 <p>I was born in Poland, came to the UK in 2013 and speak fluent Polish. I am a Distinction student who is self-motivated and always goes towards completing goals and dreams. I have excellent attendance and punctuality and was awarded Student of the Year in 2017.</p>
                 <p>I am interested in becoming a Web Developer or a Software Engineer. I have experience creating interactive and responsive websites, and enjoy using technology both when studying and in my free time.</p>
                 <p>I have experience with various computing areas including program creation using C#, website building using HTML, CSS and JavaScript, and working with bitmap and vector graphics using programs like GIMP and Inkscape.</p>
-                <p>From a young age I wanted to create video games. I played around with Adobe Flash creating my first projects like games and animations. In 2016 I started studying at college and got to know the basics of C#, creating simple programs and games, as well as basic HTML which pushed me towards learning more and eventually creating my own websites from scratch using my own CSS and JS libraries.</p>
-                <p>Digital INnov8tors allowed me to attend business meetings and work on projects like "Adventures in Bodiwell", a phone application based on a book allowing children to learn about different internal body parts.</p>
+                <p>From a young age I wanted to create video games. I played around with Adobe Flash creating my first projects. In 2016 I started studying at college and got to know the basics of C#, creating simple programs and games, as well as basic HTML which pushed me towards learning more and eventually creating my own websites from scratch.</p>
             </div>
         </section>
     </main>
@@ -373,5 +160,4 @@
 
     <script src="assets/js/script.js"></script>
 </body>
->>>>>>> recovery/Revamp
 </html>

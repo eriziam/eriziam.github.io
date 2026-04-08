@@ -25,6 +25,8 @@ const GENRES_KEY = "music_vault_genres";
 
 let currentIndex = -1;
 let isPlaying = false;
+let isLooping = false;
+let isShuffling = false;
 let rankings = [];
 let genres = {};
 let activeFilter = "all";
@@ -34,17 +36,17 @@ const gate = document.getElementById("gate");
 const app = document.getElementById("app");
 const playlistEl = document.getElementById("playlist");
 const rankingEl = document.getElementById("ranking-list");
-const playBtns = document.querySelectorAll("#play-btn, #play-btn2");
-const prevBtns = document.querySelectorAll("#prev-btn, #prev-btn2, #next-btn, #next-btn2");
+const playBtn = document.getElementById("play-btn");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
-const nextBtns = document.querySelectorAll("#next-btn, #next-btn2");
 const shuffleBtn = document.getElementById("shuffle-btn");
+const loopBtn = document.getElementById("loop-btn");
 const currentTitle = document.getElementById("current-title");
 const currentStatus = document.getElementById("current-status");
 const currentTimeEl = document.getElementById("current-time");
 const durationEl = document.getElementById("duration");
 const progressFill = document.getElementById("progress-fill");
+const progressBar = document.getElementById("progress-bar");
 const volumeSlider = document.getElementById("volume");
 const trackCount = document.getElementById("track-count");
 const genreFilterEl = document.getElementById("genre-filter");
@@ -126,19 +128,32 @@ function filterSongsByGenre(genre) {
     return songs.filter(s => getSongGenres(s.title).includes(genre));
 }
 
+function getFilteredSongs() {
+    return filterSongsByGenre(activeFilter);
+}
+
 async function initApp() {
-    await loadRankings();
     await loadGenres();
     renderGenreFilter();
     loadRankings();
     renderPlaylist();
     renderRanking();
-    trackCount.textContent = `(${getFilteredSongs().length} tracks)`;
+    trackCount.textContent = `${getFilteredSongs().length} tracks`;
+    setupViewNav();
     audio.volume = 0.7;
 }
 
-function getFilteredSongs() {
-    return filterSongsByGenre(activeFilter);
+function setupViewNav() {
+    document.querySelectorAll(".nav-item").forEach(item => {
+        item.addEventListener("click", (e) => {
+            e.preventDefault();
+            const view = item.dataset.view;
+            document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+            item.classList.add("active");
+            document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
+            document.getElementById(`${view}-view`).classList.remove("hidden");
+        });
+    });
 }
 
 function renderGenreFilter() {
@@ -155,7 +170,7 @@ function renderGenreFilter() {
             genreFilterEl.querySelectorAll(".genre-btn").forEach(b => b.classList.remove("active"));
             btn.classList.add("active");
             renderPlaylist();
-            trackCount.textContent = `(${getFilteredSongs().length} tracks)`;
+            trackCount.textContent = `${getFilteredSongs().length} tracks`;
         });
     });
 }
@@ -196,29 +211,42 @@ function playTrack(index) {
 
 function togglePlay(play) {
     isPlaying = play;
-    playBtns.forEach(btn => btn.querySelector("i").className = play ? "fas fa-pause" : "fas fa-play");
+    playBtn.querySelector("i").className = play ? "fas fa-pause" : "fas fa-play";
     if (play && audio.src) audio.play();
     else if (!play && audio.src) audio.pause();
 }
 
-playBtns.forEach(btn => btn.addEventListener("click", () => {
+playBtn.addEventListener("click", () => {
     if (currentIndex === -1) playTrack(0);
     else togglePlay(!isPlaying);
-}));
+});
 
-prevBtns.forEach(btn => btn.addEventListener("click", () => {
-    currentIndex = currentIndex > 0 ? currentIndex - 1 : songs.length - 1;
-    playTrack(currentIndex);
-}));
+prevBtn.addEventListener("click", () => {
+    const filtered = getFilteredSongs();
+    const currFilteredIndex = filtered.findIndex(s => songs.indexOf(s) === currentIndex);
+    const prevFilteredIndex = currFilteredIndex > 0 ? currFilteredIndex - 1 : filtered.length - 1;
+    playTrack(songs.indexOf(filtered[prevFilteredIndex]));
+});
 
-nextBtns.forEach(btn => btn.addEventListener("click", () => {
-    currentIndex = currentIndex < songs.length - 1 ? currentIndex + 1 : 0;
-    playTrack(currentIndex);
-}));
+nextBtn.addEventListener("click", () => {
+    const filtered = getFilteredSongs();
+    const currFilteredIndex = filtered.findIndex(s => songs.indexOf(s) === currentIndex);
+    const nextFilteredIndex = currFilteredIndex < filtered.length - 1 ? currFilteredIndex + 1 : 0;
+    playTrack(songs.indexOf(filtered[nextFilteredIndex]));
+});
 
 shuffleBtn.addEventListener("click", () => {
-    const idx = Math.floor(Math.random() * songs.length);
-    playTrack(idx);
+    isShuffling = !isShuffling;
+    shuffleBtn.style.color = isShuffling ? "#1db954" : "";
+    const filtered = getFilteredSongs();
+    const idx = Math.floor(Math.random() * filtered.length);
+    playTrack(songs.indexOf(filtered[idx]));
+});
+
+loopBtn.addEventListener("click", () => {
+    isLooping = !isLooping;
+    loopBtn.style.color = isLooping ? "#1db954" : "";
+    audio.loop = isLooping;
 });
 
 audio.addEventListener("timeupdate", () => {
@@ -234,13 +262,17 @@ audio.addEventListener("loadedmetadata", () => {
 });
 
 audio.addEventListener("ended", () => {
-    currentIndex = currentIndex < songs.length - 1 ? currentIndex + 1 : 0;
-    playTrack(currentIndex);
+    if (!isLooping) {
+        const filtered = getFilteredSongs();
+        const currFilteredIndex = filtered.findIndex(s => songs.indexOf(s) === currentIndex);
+        const nextFilteredIndex = currFilteredIndex < filtered.length - 1 ? currFilteredIndex + 1 : 0;
+        playTrack(songs.indexOf(filtered[nextFilteredIndex]));
+    }
 });
 
-document.querySelector(".progress").addEventListener("click", (e) => {
+progressBar.addEventListener("click", (e) => {
     if (audio.duration) {
-        const rect = e.target.getBoundingClientRect();
+        const rect = progressBar.getBoundingClientRect();
         const pct = (e.clientX - rect.left) / rect.width;
         audio.currentTime = pct * audio.duration;
     }
@@ -339,7 +371,7 @@ document.getElementById("save-rankings").addEventListener("click", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rankings));
     const btn = document.getElementById("save-rankings");
     btn.textContent = "Saved!";
-    setTimeout(() => btn.textContent = "Save Rankings", 1500);
+    setTimeout(() => btn.textContent = "Save", 1500);
 });
 
 document.addEventListener("keydown", (e) => {
@@ -348,10 +380,8 @@ document.addEventListener("keydown", (e) => {
         e.preventDefault();
         togglePlay(!isPlaying);
     } else if (e.code === "ArrowRight") {
-        currentIndex = currentIndex < songs.length - 1 ? currentIndex + 1 : 0;
-        playTrack(currentIndex);
+        nextBtn.click();
     } else if (e.code === "ArrowLeft") {
-        currentIndex = currentIndex > 0 ? currentIndex - 1 : songs.length - 1;
-        playTrack(currentIndex);
+        prevBtn.click();
     }
 });
