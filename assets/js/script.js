@@ -86,7 +86,8 @@ if (hero && window.matchMedia('(prefers-reduced-motion: no-preference)').matches
   }
 
   function drawParticles() {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark' || 
+                   (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     particles.forEach((p, i) => {
@@ -151,4 +152,28 @@ if (hero && window.matchMedia('(prefers-reduced-motion: no-preference)').matches
   resize();
   createParticles();
   drawParticles();
+}
+
+// Theme Toggle
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = themeToggle?.querySelector('i');
+
+function setTheme(dark) {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+  localStorage.setItem('theme', dark ? 'dark' : 'light');
+  if (themeIcon) {
+    themeIcon.className = dark ? 'fas fa-sun' : 'fas fa-moon';
+  }
+}
+
+if (themeToggle) {
+  const saved = localStorage.getItem('theme');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const isDark = saved ? saved === 'dark' : prefersDark;
+  setTheme(isDark);
+
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    setTheme(current !== 'dark');
+  });
 }

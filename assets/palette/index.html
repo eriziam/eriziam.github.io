@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Color Palette Generator</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: #0d0d14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            color: #e0e0f0;
+            padding: 2rem;
+        }
+        .header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .header a {
+            color: #7c5cfc;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .header a:hover { text-decoration: underline; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #7c5cfc; }
+        
+        .container {
+            background: #161622;
+            border: 1px solid #2a2a40;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 700px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #3a3a50;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.2s;
+        }
+        .upload-area:hover { border-color: #7c5cfc; }
+        .upload-area input { display: none; }
+        
+        #preview {
+            max-width: 100%;
+            max-height: 300px;
+            display: none;
+            margin: 0 auto 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .palette {
+            display: flex;
+            gap: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .color {
+            flex: 1;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0.5rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color:hover { transform: scale(1.05); z-index: 1; }
+        .color span {
+            background: rgba(0,0,0,0.6);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #1e1e30;
+            border: 1px solid #3a3a50;
+            border-radius: 6px;
+            padding: 0.75rem 1.5rem;
+            color: #e0e0f0;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #2a2a40;
+            border-color: #7c5cfc;
+        }
+        button.primary {
+            background: #7c5cfc;
+            color: #000;
+            border: none;
+        }
+        button.primary:hover { background: #9585ff; }
+        
+        .hint {
+            margin-top: 1rem;
+            font-size: 0.8rem;
+            color: #8a8aa0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../../index.html">← Back to Site</a>
+        <h1>🎨 Color Palette Generator</h1>
+    </div>
+    <div class="container">
+        <div class="upload-area" onclick="document.getElementById('file').click()">
+            <span>Click to upload an image</span>
+            <input type="file" id="file" accept="image/*">
+        </div>
+        
+        <img id="preview" alt="Preview">
+        
+        <div class="palette" id="palette">
+            <div class="color" style="background: #7c5cfc;"><span>#7c5cfc</span></div>
+            <div class="color" style="background: #ff5555;"><span>#ff5555</span></div>
+            <div class="color" style="background: #55ff55;"><span>#55ff55</span></div>
+            <div class="color" style="background: #ffdd55;"><span>#ffdd55</span></div>
+            <div class="color" style="background: #55ddff;"><span>#55ddff</span></div>
+        </div>
+        
+        <div class="buttons">
+            <button class="primary" onclick="generateFromImage()">Extract Colors</button>
+            <button onclick="randomPalette()">Random Palette</button>
+            <button onclick="copyAll()">Copy All</button>
+        </div>
+        
+        <p class="hint">Click any color to copy its hex code</p>
+    </div>
+    
+    <script>
+        const fileInput = document.getElementById('file');
+        const preview = document.getElementById('preview');
+        const palette = document.getElementById('palette');
+        let colors = ['#7c5cfc', '#ff5555', '#55ff55', '#ffdd55', '#55ddff'];
+        
+        fileInput.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        function generateFromImage() {
+            if (!preview.src || preview.style.display === 'none') {
+                alert('Upload an image first!');
+                return;
+            }
+            
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 100;
+                canvas.height = 100;
+                ctx.drawImage(img, 0, 0, 100, 100);
+                
+                const imageData = ctx.getImageData(0, 0, 100, 100).data;
+                const colorCounts = {};
+                
+                for (let i = 0; i < imageData.length; i += 4) {
+                    const r = Math.round(imageData[i] / 32) * 32;
+                    const g = Math.round(imageData[i + 1] / 32) * 32;
+                    const b = Math.round(imageData[i + 2] / 32) * 32;
+                    const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+                    colorCounts[hex] = (colorCounts[hex] || 0) + 1;
+                }
+                
+                colors = Object.entries(colorCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5)
+                    .map(([c]) => c);
+                
+                renderPalette();
+            };
+            img.src = preview.src;
+        }
+        
+        function randomPalette() {
+            colors = Array.from({length: 5}, () => 
+                '#' + Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')
+            );
+            renderPalette();
+        }
+        
+        function renderPalette() {
+            palette.innerHTML = colors.map(c => `
+                <div class="color" style="background: ${c};" onclick="copyColor('${c}')">
+                    <span>${c}</span>
+                </div>
+            `).join('');
+        }
+        
+        function copyColor(color) {
+            navigator.clipboard.writeText(color);
+            alert('Copied: ' + color);
+        }
+        
+        function copyAll() {
+            navigator.clipboard.writeText(colors.join(', '));
+            alert('Copied all colors!');
+        }
+        
+        renderPalette();
+    </script>
+</body>
+</html>

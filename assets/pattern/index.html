@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pattern Generator</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: #0d0d14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Fira Code', monospace;
+            color: #e0e0f0;
+            padding: 1rem;
+        }
+        .header {
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .header a {
+            color: #7c5cfc;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .header a:hover { text-decoration: underline; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #7c5cfc; }
+        
+        .container {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 900px;
+        }
+        
+        .controls {
+            background: #161622;
+            border: 1px solid #2a2a40;
+            border-radius: 8px;
+            padding: 1.5rem;
+            width: 250px;
+        }
+        
+        .control-group {
+            margin-bottom: 1rem;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #8a8aa0;
+            margin-bottom: 0.5rem;
+        }
+        
+        .control-group select,
+        .control-group input[type="range"] {
+            width: 100%;
+            background: #1e1e30;
+            border: 1px solid #3a3a50;
+            border-radius: 4px;
+            padding: 0.5rem;
+            color: #e0e0f0;
+            font-family: inherit;
+        }
+        
+        .control-group input[type="range"] {
+            padding: 0;
+        }
+        
+        .control-group .value {
+            font-size: 0.8rem;
+            color: #7c5cfc;
+            text-align: right;
+        }
+        
+        .color-inputs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .color-inputs input[type="color"] {
+            width: 40px;
+            height: 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .preview {
+            background: #161622;
+            border: 1px solid #2a2a40;
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #pattern {
+            width: 300px;
+            height: 300px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        button {
+            background: #1e1e30;
+            border: 1px solid #3a3a50;
+            border-radius: 4px;
+            padding: 0.5rem 1rem;
+            color: #e0e0f0;
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        button:hover { border-color: #7c5cfc; }
+        button.primary { background: #7c5cfc; color: #000; border: none; }
+        button.primary:hover { background: #9585ff; }
+        
+        .code-output {
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .code-output textarea {
+            width: 100%;
+            background: #0d0d14;
+            border: 1px solid #3a3a50;
+            border-radius: 4px;
+            padding: 0.75rem;
+            color: #7c5cfc;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.75rem;
+            resize: none;
+            height: 80px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../../index.html">← Back to Site</a>
+        <h1>✨ Pattern Generator</h1>
+    </div>
+    <div class="container">
+        <div class="controls">
+            <div class="control-group">
+                <label>Pattern Type</label>
+                <select id="patternType">
+                    <option value="checker">Checkerboard</option>
+                    <option value="stripes">Stripes</option>
+                    <option value="dots">Polka Dots</option>
+                    <option value="grid">Grid</option>
+                    <option value="zigzag">Zigzag</option>
+                    <option value="triangles">Triangles</option>
+                    <option value="circles">Concentric Circles</option>
+                </select>
+            </div>
+            
+            <div class="control-group">
+                <label>Scale</label>
+                <input type="range" id="scale" min="10" max="100" value="30">
+                <div class="value" id="scaleVal">30px</div>
+            </div>
+            
+            <div class="control-group">
+                <label>Colors</label>
+                <div class="color-inputs">
+                    <input type="color" id="color1" value="#7c5cfc">
+                    <input type="color" id="color2" value="#1e1e30">
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>Rotation</label>
+                <input type="range" id="rotation" min="0" max="360" value="0">
+                <div class="value" id="rotVal">0°</div>
+            </div>
+        </div>
+        
+        <div class="preview">
+            <canvas id="pattern" width="300" height="300"></canvas>
+            <div class="buttons">
+                <button class="primary" onclick="downloadPattern()">Download</button>
+                <button onclick="copyCSS()">Copy CSS</button>
+            </div>
+            <div class="code-output">
+                <textarea id="cssOutput" readonly></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('pattern');
+        const ctx = canvas.getContext('2d');
+        
+        function draw() {
+            const type = document.getElementById('patternType').value;
+            const scale = parseInt(document.getElementById('scale').value);
+            const color1 = document.getElementById('color1').value;
+            const color2 = document.getElementById('color2').value;
+            const rotation = parseInt(document.getElementById('rotation').value);
+            
+            ctx.fillStyle = color2;
+            ctx.fillRect(0, 0, 300, 300);
+            
+            ctx.save();
+            ctx.translate(150, 150);
+            ctx.rotate(rotation * Math.PI / 180);
+            ctx.translate(-150, -150);
+            
+            ctx.fillStyle = color1;
+            
+            if (type === 'checker') {
+                for (let x = 0; x < 300; x += scale) {
+                    for (let y = 0; y < 300; y += scale) {
+                        if ((x / scale + y / scale) % 2 === 0) {
+                            ctx.fillRect(x, y, scale, scale);
+                        }
+                    }
+                }
+            } else if (type === 'stripes') {
+                for (let x = 0; x < 300; x += scale) {
+                    ctx.fillRect(x, 0, scale / 2, 300);
+                }
+            } else if (type === 'dots') {
+                for (let x = scale / 2; x < 300; x += scale) {
+                    for (let y = scale / 2; y < 300; y += scale) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, scale / 4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            } else if (type === 'grid') {
+                for (let x = 0; x < 300; x += scale) {
+                    ctx.fillRect(x, 0, 2, 300);
+                }
+                for (let y = 0; y < 300; y += scale) {
+                    ctx.fillRect(0, y, 300, 2);
+                }
+            } else if (type === 'zigzag') {
+                for (let y = 0; y < 300; y += scale) {
+                    for (let x = 0; x < 300; x += scale) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y);
+                        ctx.lineTo(x + scale / 2, y + scale / 2);
+                        ctx.lineTo(x + scale, y);
+                        ctx.lineTo(x + scale / 2, y - scale / 2);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                }
+            } else if (type === 'triangles') {
+                for (let y = 0; y < 300; y += scale) {
+                    for (let x = 0; x < 300; x += scale) {
+                        ctx.beginPath();
+                        ctx.moveTo(x, y + scale);
+                        ctx.lineTo(x + scale / 2, y);
+                        ctx.lineTo(x + scale, y + scale);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                }
+            } else if (type === 'circles') {
+                for (let r = scale; r < 150; r += scale) {
+                    ctx.beginPath();
+                    ctx.arc(150, 150, r, 0, Math.PI * 2);
+                    ctx.strokeStyle = color1;
+                    ctx.lineWidth = scale / 3;
+                    ctx.stroke();
+                }
+            }
+            
+            ctx.restore();
+            generateCSS(type, scale, color1, color2);
+        }
+        
+        function generateCSS(type, scale, color1, color2) {
+            let pattern = '';
+            
+            if (type === 'checker') {
+                pattern = `repeating-conic-gradient(${color1} 0% 25%, ${color2} 0% 50%) ${scale}px / ${scale}px`;
+            } else if (type === 'stripes') {
+                pattern = `repeating-linear-gradient(90deg, ${color1}, ${color1} ${scale/2}px, ${color2} ${scale/2}px, ${color2} ${scale}px)`;
+            } else if (type === 'grid') {
+                pattern = `linear-gradient(${color1} 2px, transparent 2px), linear-gradient(90deg, ${color1} 2px, transparent 2px), ${color2}`;
+                document.getElementById('cssOutput').value = `background: ${color2};\nbackground-image: linear-gradient(${color1} 2px, transparent 2px), linear-gradient(90deg, ${color1} 2px, transparent 2px);\nbackground-size: ${scale}px ${scale}px;`;
+                return;
+            }
+            
+            document.getElementById('cssOutput').value = `background: ${pattern};\nbackground-size: ${scale}px ${scale}px;`;
+        }
+        
+        function downloadPattern() {
+            const link = document.createElement('a');
+            link.download = 'pattern.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        function copyCSS() {
+            const css = document.getElementById('cssOutput').value;
+            navigator.clipboard.writeText(css);
+            alert('CSS copied to clipboard!');
+        }
+        
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('input', draw);
+            el.addEventListener('change', draw);
+        });
+        
+        document.getElementById('scale').addEventListener('input', e => {
+            document.getElementById('scaleVal').textContent = e.target.value + 'px';
+        });
+        
+        document.getElementById('rotation').addEventListener('input', e => {
+            document.getElementById('rotVal').textContent = e.target.value + '°';
+        });
+        
+        draw();
+    </script>
+</body>
+</html>

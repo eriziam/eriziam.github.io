@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Text-based Game</title>
+    <link rel="stylesheet" href="assets/css/master.css">
+    <script type="text/javascript" src="assets/js/main.js"></script>
+  </head>
+  <body onload="initialize()">
+    <center>
+    <div id="tbg">
+      <div id="stats">
+        <div id="stat">❤ Health<br><p id="hp">X</p></div><div id="stat">🙪 Combat<br><p id="cp">X</p></div><div id="stat">✦ Experience<br><p id="xp">X</p></div><div id="stat">🜲 Gold<br><p id="gp">X</p></div>
+      </div>
+      <hr>
+      <div id="character">
+        <h3>Character</h3>
+        <div class="slot" id="charweapon"></div><div class="slot" id="chararmor"></div><div class="slot" id="charspecial"></div><div class="slot" id="charring"></div>
+      </div>
+      <hr>
+      <div id="inventory">
+        <h3>Inventory</h3>
+        <div class="slot" id="inv0"></div><div class="slot" id="inv1"></div><div class="slot" id="inv2"></div><div class="slot" id="inv3"></div><div class="slot" id="inv4"></div><div class="slot" id="inv5"></div><div class="slot" id="inv6"></div><div class="slot" id="inv7"></div>
+      </div>
+      <hr>
+      <div>
+        <a onclick="explore()">[ Explore ]</a><a onclick="quest()">[ Quest ]</a>
+      </div>
+      <hr>
+      <p id="out">===== Welcome to TBG (text-based game)! =====<br></p>
+    </div>
+  </body>
+</html>

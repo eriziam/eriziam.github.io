@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>QR Code Generator</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: #0d0d14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            color: #e0e0f0;
+            padding: 2rem;
+        }
+        .header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .header a {
+            color: #7c5cfc;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .header a:hover { text-decoration: underline; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #7c5cfc; }
+        
+        .container {
+            background: #161622;
+            border: 1px solid #2a2a40;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        
+        textarea {
+            width: 100%;
+            background: #0d0d14;
+            border: 1px solid #3a3a50;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #e0e0f0;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            min-height: 80px;
+            margin-bottom: 1rem;
+        }
+        textarea:focus {
+            outline: none;
+            border-color: #7c5cfc;
+        }
+        
+        .generate-btn {
+            background: #7c5cfc;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            color: #000;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .generate-btn:hover { background: #9585ff; }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        #qrcode img { max-width: 100%; }
+        
+        .download-btn {
+            background: #1e1e30;
+            border: 1px solid #3a3a50;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            color: #e0e0f0;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .download-btn:hover {
+            background: #2a2a40;
+            border-color: #7c5cfc;
+        }
+        
+        .error {
+            color: #ff5555;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../../index.html">← Back to Site</a>
+        <h1>📱 QR Code Generator</h1>
+    </div>
+    <div class="container">
+        <textarea id="text" placeholder="Enter text or URL...">https://eriziam.github.io</textarea>
+        <button class="generate-btn" onclick="generateQR()">Generate QR</button>
+        
+        <div id="qrcode">
+            <span style="color: #666;">QR code will appear here</span>
+        </div>
+        <div id="error" class="error"></div>
+        
+        <button class="download-btn" onclick="downloadQR()">Download PNG</button>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        let qrcode = null;
+        
+        function generateQR() {
+            const text = document.getElementById('text').value.trim();
+            const container = document.getElementById('qrcode');
+            const error = document.getElementById('error');
+            
+            if (!text) {
+                error.textContent = 'Please enter some text or a URL';
+                return;
+            }
+            
+            error.textContent = '';
+            container.innerHTML = '';
+            
+            qrcode = new QRCode(container, {
+                text: text,
+                width: 200,
+                height: 200,
+                colorDark: '#000000',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+        
+        function downloadQR() {
+            const img = document.querySelector('#qrcode img');
+            if (!img) {
+                alert('Generate a QR code first!');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'qrcode.png';
+            link.href = img.src;
+            link.click();
+        }
+        
+        generateQR();
+    </script>
+</body>
+</html>

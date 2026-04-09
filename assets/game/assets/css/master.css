@@ -1,0 +1,123 @@
+html, body {
+  background: #1a1a20;
+  cursor: default;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 0;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 14px;
+  font-weight: 900;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+hr { width: 520px; border: 1px solid #333; }
+
+#tbg {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* STATS */
+#stats {
+  white-space: nowrap;
+}
+
+#stat {
+  display: inline-block;
+  background: #252530;
+  width: 127px;
+  height: 50px;
+  border: 2px solid #444;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+#stat:hover {
+  border-color: #7c5cfc;
+}
+
+#stat b { font-size: 18px; }
+#hp, #cp, #xp, #gp { font-size: 22px; color: #7c5cfc; }
+
+/* INVENTORY */
+#inventory {
+  white-space: nowrap;
+}
+
+.slot {
+  display: inline-block;
+  background: #252530;
+  width: 60px;
+  height: 48px;
+  line-height: 46px;
+  margin: 5px;
+  padding: 0;
+  border: 2px solid #444;
+  border-radius: 5px;
+  vertical-align: top;
+  cursor: pointer;
+  text-align: center;
+  font-size: 10px;
+  overflow: hidden;
+  transition: border-color 0.2s;
+}
+
+.slot:hover {
+  border-color: #7c5cfc;
+  background: #2a2a38;
+}
+
+/* CHARACTER EQUIP */
+#character .slot {
+  width: 50px;
+  height: 50px;
+  line-height: 48px;
+}
+
+/* COLORS */
+a {
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  display: inline-block;
+}
+
+a:hover {
+  color: #7c5cfc;
+}
+
+#out {
+  padding-left: 20px;
+  margin: 0;
+  margin-top: 10px;
+  font-size: 14px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: #1e1e28;
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+#red { color: #ff5555 !important; }
+#green { color: #55ff55 !important; }
+#yellow { color: #ffdd55 !important; }
+
+/* NEW GAME BUTTON */
+button {
+  background: #7c5cfc;
+  color: #000;
+  border: none;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #9585ff;
+}

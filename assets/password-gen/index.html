@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Password Generator</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: #0d0d14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Fira Code', monospace;
+            color: #e0e0f0;
+            padding: 2rem;
+        }
+        .header {
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .header a {
+            color: #7c5cfc;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .header a:hover { text-decoration: underline; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #7c5cfc; }
+        
+        .container {
+            background: #161622;
+            border: 1px solid #2a2a40;
+            border-radius: 12px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+        }
+        
+        .output {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .output input {
+            flex: 1;
+            background: #0d0d14;
+            border: 1px solid #3a3a50;
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: #e0e0f0;
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        .output button {
+            background: #7c5cfc;
+            border: none;
+            border-radius: 6px;
+            padding: 0.75rem;
+            cursor: pointer;
+            color: #000;
+            font-size: 1rem;
+        }
+        .output button:hover { background: #9585ff; }
+        
+        .options { margin-bottom: 1.5rem; }
+        .option {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #7c5cfc;
+        }
+        .option label { flex: 1; }
+        
+        .option input[type="range"] {
+            width: 100%;
+            accent-color: #7c5cfc;
+        }
+        
+        .length-display {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: #8a8aa0;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            background: #7c5cfc;
+            border: none;
+            border-radius: 8px;
+            padding: 1rem;
+            color: #000;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .generate-btn:hover { background: #9585ff; }
+        
+        .strength {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .strength.weak { background: rgba(255, 85, 85, 0.2); color: #ff5555; }
+        .strength.medium { background: rgba(255, 221, 85, 0.2); color: #ffdd55; }
+        .strength.strong { background: rgba(85, 255, 85, 0.2); color: #55ff55; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../../index.html">← Back to Site</a>
+        <h1>🔐 Password Generator</h1>
+    </div>
+    <div class="container">
+        <div class="output">
+            <input type="text" id="password" readonly placeholder="Click generate...">
+            <button onclick="copy()" title="Copy">📋</button>
+        </div>
+        
+        <div class="options">
+            <div class="length-display">
+                <span>Length</span>
+                <span id="lengthVal">16</span>
+            </div>
+            <input type="range" id="length" min="4" max="64" value="16">
+            
+            <div class="option">
+                <input type="checkbox" id="uppercase" checked>
+                <label for="uppercase">Uppercase (A-Z)</label>
+            </div>
+            <div class="option">
+                <input type="checkbox" id="lowercase" checked>
+                <label for="lowercase">Lowercase (a-z)</label>
+            </div>
+            <div class="option">
+                <input type="checkbox" id="numbers" checked>
+                <label for="numbers">Numbers (0-9)</label>
+            </div>
+            <div class="option">
+                <input type="checkbox" id="symbols" checked>
+                <label for="symbols">Symbols (!@#$%)</label>
+            </div>
+        </div>
+        
+        <button class="generate-btn" onclick="generate()">Generate Password</button>
+        
+        <div class="strength" id="strength"></div>
+    </div>
+    
+    <script>
+        const chars = {
+            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lowercase: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        };
+        
+        function generate() {
+            let pool = '';
+            const length = document.getElementById('length').value;
+            
+            if (document.getElementById('uppercase').checked) pool += chars.uppercase;
+            if (document.getElementById('lowercase').checked) pool += chars.lowercase;
+            if (document.getElementById('numbers').checked) pool += chars.numbers;
+            if (document.getElementById('symbols').checked) pool += chars.symbols;
+            
+            if (!pool) {
+                alert('Select at least one character type!');
+                return;
+            }
+            
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += pool[Math.floor(Math.random() * pool.length)];
+            }
+            
+            document.getElementById('password').value = password;
+            updateStrength(password);
+        }
+        
+        function updateStrength(password) {
+            const el = document.getElementById('strength');
+            const len = password.length;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNum = /[0-9]/.test(password);
+            const hasSym = /[^A-Za-z0-9]/.test(password);
+            
+            const types = [hasUpper, hasLower, hasNum, hasSym].filter(Boolean).length;
+            
+            if (len < 8 || types < 2) {
+                el.className = 'strength weak';
+                el.textContent = 'Weak';
+            } else if (len < 16 || types < 3) {
+                el.className = 'strength medium';
+                el.textContent = 'Medium';
+            } else {
+                el.className = 'strength strong';
+                el.textContent = 'Strong';
+            }
+        }
+        
+        function copy() {
+            const input = document.getElementById('password');
+            if (!input.value) return;
+            input.select();
+            document.execCommand('copy');
+            alert('Copied to clipboard!');
+        }
+        
+        document.getElementById('length').addEventListener('input', e => {
+            document.getElementById('lengthVal').textContent = e.target.value;
+        });
+        
+        generate();
+    </script>
+</body>
+</html>

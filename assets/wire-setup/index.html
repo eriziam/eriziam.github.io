@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Wire Annealing & Spooling Setup</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            background: #0d0d14;
+            font-family: 'DM Sans', sans-serif;
+            color: #e0e0f0;
+            padding: 1.5rem;
+        }
+        a { color: #7c5cfc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #1c1c30;
+        }
+        .header h1 { font-size: 1.5rem; color: #7c5cfc; margin-bottom: 0.5rem; }
+        .header p { color: #6060a0; font-size: 0.9rem; }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .card {
+            background: #12121a;
+            border: 1px solid #1c1c30;
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+        
+        .card-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #7c5cfc;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #1c1c30;
+        }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: #8a8aa0;
+            margin-bottom: 0.35rem;
+        }
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            background: #0a0a10;
+            border: 1px solid #2a2a40;
+            border-radius: 6px;
+            padding: 0.6rem;
+            color: #e0e0f0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+        }
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #7c5cfc;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+        }
+        
+        .slider-group {
+            margin-bottom: 1rem;
+        }
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #8a8aa0;
+            margin-bottom: 0.35rem;
+        }
+        .slider-group label span { color: #7c5cfc; font-family: 'Fira Code', monospace; }
+        .slider-group input[type="range"] {
+            width: 100%;
+            accent-color: #7c5cfc;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #1c1c30;
+        }
+        .result-item:last-child { border-bottom: none; }
+        .result-label { color: #8a8aa0; font-size: 0.85rem; }
+        .result-value { 
+            font-family: 'Fira Code', monospace; 
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .result-value.good { color: #55ff55; }
+        .result-value.warn { color: #ffdd55; }
+        .result-value.bad { color: #ff5555; }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-badge.match { background: rgba(85, 255, 85, 0.2); color: #55ff55; }
+        .status-badge.close { background: rgba(255, 221, 85, 0.2); color: #ffdd55; }
+        .status-badge.miss { background: rgba(255, 85, 85, 0.2); color: #ff5555; }
+        
+        .tips {
+            background: rgba(124, 92, 252, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .tips-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #7c5cfc;
+            margin-bottom: 0.5rem;
+        }
+        .tips ul {
+            font-size: 0.8rem;
+            color: #8a8aa0;
+            padding-left: 1rem;
+        }
+        .tips li { margin-bottom: 0.25rem; }
+        
+        .info-note {
+            font-size: 0.75rem;
+            color: #6060a0;
+            font-style: italic;
+            margin-top: 0.25rem;
+        }
+        
+        @media (max-width: 700px) {
+            .container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../../index.html">← Back to Site</a>
+        <h1>⚙️ Wire Annealing & Spooling Setup</h1>
+        <p>Configure furnace and spooling parameters for wire processing</p>
+    </div>
+    
+    <div class="container">
+        <!-- Wire Properties -->
+        <div class="card">
+            <div class="card-title">Wire Properties</div>
+            
+            <div class="form-group">
+                <label>Material</label>
+                <select id="material">
+                    <option value="copper">Copper (Cu)</option>
+                    <option value="aluminum">Aluminum (Al)</option>
+                    <option value="steel">Steel / Carbon Steel</option>
+                    <option value="stainless">Stainless Steel</option>
+                    <option value="nickel">Nickel Alloy</option>
+                </select>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Wire Diameter (mm)</label>
+                    <input type="number" id="diameter" value="0.5" step="0.01" min="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Initial State</label>
+                    <select id="initialState">
+                        <option value="hard">Hard Drawn</option>
+                        <option value="half">Half-Hard</option>
+                        <option value="soft">Soft Annealed</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Furnace Settings -->
+        <div class="card">
+            <div class="card-title">Furnace Settings</div>
+            
+            <div class="slider-group">
+                <label>Furnace Temperature <span id="tempVal">400°C</span></label>
+                <input type="range" id="temperature" min="100" max="900" value="400">
+                <p class="info-note" id="tempInfo">Copper annealing range</p>
+            </div>
+            
+            <div class="slider-group">
+                <label>Dwell Time <span id="dwellVal">2.0s</span></label>
+                <input type="range" id="dwellTime" min="0.5" max="10" step="0.5" value="2">
+            </div>
+            
+            <div class="form-group">
+                <label>Atmosphere</label>
+                <select id="atmosphere">
+                    <option value="oxidizing">Air / Oxidizing</option>
+                    <option value="inert">Inert (N₂ / Argon)</option>
+                    <option value="reducing">Reducing (H₂ / CO)</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Spooling Settings -->
+        <div class="card">
+            <div class="card-title">Spooling Settings</div>
+            
+            <div class="slider-group">
+                <label>Line Speed <span id="speedVal">50 m/min</span></label>
+                <input type="range" id="lineSpeed" min="10" max="200" value="50">
+            </div>
+            
+            <div class="slider-group">
+                <label>Tension <span id="tensionVal">50 N</span></label>
+                <input type="range" id="tension" min="10" max="200" value="50">
+            </div>
+            
+            <div class="form-group">
+                <label>Spool Type</label>
+                <select id="spoolType">
+                    <option value="tension">Tension Reel</option>
+                    <option value="servo">Servo Controlled</option>
+                    <option value="capstan">Capstan Drive</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Target Requirements -->
+        <div class="card">
+            <div class="card-title">Client Requirements</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Min Tensile (MPa)</label>
+                    <input type="number" id="reqTensile" value="200">
+                </div>
+                <div class="form-group">
+                    <label>Min Elongation (%)</label>
+                    <input type="number" id="reqElongation" value="15">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Max Resistance (Ω/km)</label>
+                    <input type="number" id="reqResistance" value="100" step="0.1">
+                </div>
+                <div class="form-group">
+                    <label>Size Tolerance (±mm)</label>
+                    <input type="number" id="reqTolerance" value="0.01" step="0.001">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results -->
+        <div class="card">
+            <div class="card-title">Predicted Results</div>
+            
+            <div class="result-item">
+                <span class="result-label">Tensile Strength</span>
+                <span class="result-value" id="resTensile">220 MPa</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Elongation</span>
+                <span class="result-value" id="resElongation">25%</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Resistance</span>
+                <span class="result-value" id="resResistance">87.2 Ω/km</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Size Deviation</span>
+                <span class="result-value" id="resTolerance">±0.005mm</span>
+            </div>
+            <div class="result-item">
+                <span class="result-label">Overall Status</span>
+                <span class="status-badge match" id="resStatus">MATCH</span>
+            </div>
+            
+            <div class="tips" id="tips">
+                <div class="tips-title">💡 Optimization Tips</div>
+                <ul id="tipsList"></ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const materialData = {
+            copper: {
+                name: 'Copper',
+                annealMin: 350, annealMax: 500,
+                resistivity: 0.01724,
+                tensileHard: 380, tensileSoft: 220,
+                elongationHard: 2, elongationSoft: 25,
+                notes: ['High conductivity', 'Tensile vs elongation trade-off']
+            },
+            aluminum: {
+                name: 'Aluminum',
+                annealMin: 300, annealMax: 400,
+                resistivity: 0.0282,
+                tensileHard: 150, tensileSoft: 70,
+                elongationHard: 2, elongationSoft: 20,
+                notes: ['Low temperature required', 'Easily over-annealed']
+            },
+            steel: {
+                name: 'Steel',
+                annealMin: 600, annealMax: 700,
+                resistivity: 0.12,
+                tensileHard: 800, tensileSoft: 400,
+                elongationHard: 2, elongationSoft: 15,
+                notes: ['Higher temp needed', 'May need controlled cooling']
+            },
+            stainless: {
+                name: 'Stainless Steel',
+                annealMin: 800, annealMax: 900,
+                resistivity: 0.72,
+                tensileHard: 900, tensileSoft: 500,
+                elongationHard: 1, elongationSoft: 10,
+                notes: ['Very high temp', 'Watch for sensitization']
+            },
+            nickel: {
+                name: 'Nickel Alloy',
+                annealMin: 700, annealMax: 850,
+                resistivity: 0.09,
+                tensileHard: 700, tensileSoft: 450,
+                elongationHard: 2, elongationSoft: 12,
+                notes: ['High temp required', 'Argon atmosphere preferred']
+            }
+        };
+        
+        const materialEl = document.getElementById('material');
+        const diameterEl = document.getElementById('diameter');
+        const initialEl = document.getElementById('initialState');
+        const tempEl = document.getElementById('temperature');
+        const dwellEl = document.getElementById('dwellTime');
+        const speedEl = document.getElementById('lineSpeed');
+        const tensionEl = document.getElementById('tension');
+        
+        function updateTempInfo() {
+            const mat = materialData[materialEl.value];
+            const temp = parseInt(tempEl.value);
+            document.getElementById('tempVal').textContent = temp + '°C';
+            document.getElementById('tempInfo').textContent = `${mat.name}: ${mat.annealMin}-${mat.annealMax}°C`;
+        }
+        
+        function calculate() {
+            const mat = materialData[materialEl.value];
+            const diameter = parseFloat(diameterEl.value);
+            const initial = initialEl.value;
+            const temperature = parseInt(tempEl.value);
+            const dwell = parseFloat(dwellEl.value);
+            const speed = parseInt(speedEl.value);
+            const tension = parseInt(tensionEl.value);
+            const atmosphere = document.getElementById('atmosphere').value;
+            const spoolType = document.getElementById('spoolType').value;
+            
+            const reqTensile = parseFloat(document.getElementById('reqTensile').value);
+            const reqElongation = parseFloat(document.getElementById('reqElongation').value);
+            const reqResistance = parseFloat(document.getElementById('reqResistance').value);
+            const reqTolerance = parseFloat(document.getElementById('reqTolerance').value);
+            
+            let baseTensile, baseElongation;
+            if (initial === 'hard') {
+                baseTensile = mat.tensileHard;
+                baseElongation = mat.elongationHard;
+            } else if (initial === 'half') {
+                baseTensile = (mat.tensileHard + mat.tensileSoft) / 2;
+                baseElongation = (mat.elongationHard + mat.elongationSoft) / 2;
+            } else {
+                baseTensile = mat.tensileSoft;
+                baseElongation = mat.elongationSoft;
+            }
+            
+            const annealFactor = Math.max(0, 1 - Math.abs(temperature - ((mat.annealMin + mat.annealMax) / 2)) / 200);
+            const tempEffect = (temperature - mat.annealMin) / (mat.annealMax - mat.annealMin);
+            
+            let tensile = baseTensile * (1 - annealFactor * 0.7);
+            let elongation = baseElongation * (0.3 + annealFactor * 0.7);
+            
+            if (temperature < mat.annealMin) {
+                tensile = baseTensile;
+                elongation = baseElongation * 0.5;
+            } else if (temperature > mat.annealMax) {
+                tensile = mat.tensileSoft * 0.9;
+                elongation = mat.elongationSoft * 1.1;
+            }
+            
+            const dwellFactor = Math.min(1.2, 0.8 + (dwell / 5) * 0.3);
+            tensile *= dwellFactor;
+            elongation *= dwellFactor;
+            
+            if (atmosphere === 'inert' && temperature > 500) {
+                elongation *= 1.1;
+            } else if (atmosphere === 'oxidizing') {
+                tensile *= 1.05;
+                elongation *= 0.9;
+            }
+            
+            const tensionFactor = Math.min(1.1, 0.9 + (tension / 100) * 0.2);
+            tensile *= tensionFactor;
+            elongation *= tensionFactor / tensionFactor;
+            
+            const speedFactor = Math.max(0.8, 1.2 - (speed / 100) * 0.3);
+            elongation *= speedFactor;
+            
+            const resistFactor = 1 + (temperature - 20) * 0.004;
+            const resistance = (mat.resistivity / (diameter * diameter)) * resistFactor * 1000;
+            
+            let sizeDev = 0.005;
+            if (spoolType === 'tension') sizeDev = 0.008;
+            else if (spoolType === 'servo') sizeDev = 0.003;
+            else sizeDev = 0.006;
+            
+            sizeDev *= (tension / 50);
+            
+            const tensileMatch = tensile >= reqTensile ? 'good' : (tensile >= reqTensile * 0.9 ? 'warn' : 'bad');
+            const elongMatch = elongation >= reqElongation ? 'good' : (elongation >= reqElongation * 0.8 ? 'warn' : 'bad');
+            const resistMatch = resistance <= reqResistance ? 'good' : (resistance <= reqResistance * 1.1 ? 'warn' : 'bad');
+            const tolMatch = sizeDev <= reqTolerance ? 'good' : (sizeDev <= reqTolerance * 1.5 ? 'warn' : 'bad');
+            
+            const matches = [tensileMatch, elongMatch, resistMatch, tolMatch].filter(v => v === 'good').length;
+            const warns = [tensileMatch, elongMatch, resistMatch, tolMatch].filter(v => v === 'warn').length;
+            
+            let statusBadge, statusText;
+            if (matches >= 3) {
+                statusBadge = 'match';
+                statusText = 'MATCH';
+            } else if (matches + warns >= 2) {
+                statusBadge = 'close';
+                statusText = 'CLOSE';
+            } else {
+                statusBadge = 'miss';
+                statusText = 'ADJUST';
+            }
+            
+            document.getElementById('resTensile').textContent = Math.round(tensile) + ' MPa';
+            document.getElementById('resTensile').className = 'result-value ' + tensileMatch;
+            
+            document.getElementById('resElongation').textContent = Math.round(elongation) + '%';
+            document.getElementById('resElongation').className = 'result-value ' + elongMatch;
+            
+            document.getElementById('resResistance').textContent = resistance.toFixed(1) + ' Ω/km';
+            document.getElementById('resResistance').className = 'result-value ' + resistMatch;
+            
+            document.getElementById('resTolerance').textContent = '±' + sizeDev.toFixed(3) + 'mm';
+            document.getElementById('resTolerance').className = 'result-value ' + tolMatch;
+            
+            document.getElementById('resStatus').className = 'status-badge ' + statusBadge;
+            document.getElementById('resStatus').textContent = statusText;
+            
+            const tips = [];
+            if (tensileMatch === 'bad' && mat.name === 'Copper') {
+                tips.push('⚠️ For copper: higher tensile often means lower elongation. Consider trade-off between the two.');
+            }
+            if (temperature < mat.annealMin) {
+                tips.push(`❄️ Temperature too low for ${mat.name}. Increase to at least ${mat.annealMin}°C`);
+            }
+            if (temperature > mat.annealMax) {
+                tips.push(`🔥 Temperature too high! Risk of grain growth and reduced strength`);
+            }
+            if (tension > 100 && spoolType === 'tension') {
+                tips.push('⚠️ High tension may cause stretch - consider servo-controlled spool');
+            }
+            if (speed > 100) {
+                tips.push('⚡ High speed reduces dwell time - may need higher temperature');
+            }
+            if (atmosphere === 'oxidizing' && mat.name === 'Copper') {
+                tips.push('💡 Air atmosphere may cause surface oxidation - consider inert for bright finish');
+            }
+            if (diameter > 1 && temperature < mat.annealMin + 50) {
+                tips.push('📏 Larger diameter - consider longer dwell time for proper annealing');
+            }
+            
+            document.getElementById('tipsList').innerHTML = tips.length ? tips.map(t => `<li>${t}</li>`).join('') : '<li>✓ Settings look good for target requirements</li>';
+        }
+        
+        function updateSliderValue(id, val, suffix) {
+            document.getElementById(id).textContent = val + suffix;
+        }
+        
+        document.getElementById('temperature').addEventListener('input', e => {
+            updateSliderValue('tempVal', e.target.value, '°C');
+            updateTempInfo();
+            calculate();
+        });
+        
+        document.getElementById('dwellTime').addEventListener('input', e => {
+            updateSliderValue('dwellVal', e.target.value, 's');
+            calculate();
+        });
+        
+        document.getElementById('lineSpeed').addEventListener('input', e => {
+            updateSliderValue('speedVal', e.target.value, ' m/min');
+            calculate();
+        });
+        
+        document.getElementById('tension').addEventListener('input', e => {
+            updateSliderValue('tensionVal', e.target.value, ' N');
+            calculate();
+        });
+        
+        [materialEl, diameterEl, initialEl, 'atmosphere', 'spoolType', 'reqTensile', 'reqElongation', 'reqResistance', 'reqTolerance'].forEach(id => {
+            document.getElementById(id).addEventListener('input', calculate);
+            document.getElementById(id).addEventListener('change', calculate);
+        });
+        
+        updateTempInfo();
+        calculate();
+    </script>
+</body>
+</html>

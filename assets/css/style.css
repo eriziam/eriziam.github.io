@@ -139,6 +139,21 @@ p {
   opacity: 1;
 }
 
+.theme-toggle {
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  opacity: 0.6;
+  transition: opacity var(--transition);
+}
+
+.theme-toggle:hover {
+  opacity: 1;
+}
+
 .mobile-menu-btn {
   display: none;
   background: none;
@@ -490,4 +505,17 @@ footer {
     --color-timeline-line: #2a2a3a;
     --color-timeline-bg: #16161f;
   }
+}
+
+[data-theme="light"] {
+  --color-bg: #fafafa;
+  --color-surface: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #666666;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-border: #e5e5e5;
+  --color-timeline-line: #d1d5db;
+  --color-timeline-dot: #2563eb;
+  --color-timeline-bg: #f3f4f6;
 }

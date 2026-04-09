@@ -3,488 +3,247 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CV Studio - Eryk Kirzanowski</title>
+    <title>Projects - Eryk Kirzanowski</title>
     <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        :root {
+            --bg: #080810;
+            --surface: #0e0e1c;
+            --border: #1c1c30;
+            --text: #e2e0f0;
+            --text-muted: #6060a0;
+            --accent: #7c5cfc;
+            --accent-hover: #9585ff;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: #080810; font-family: 'Sora', sans-serif; color: #e2e0f0; }
-        .app { min-height: 100vh; display: flex; flex-direction: column; }
-        .header { border-bottom: 1px solid #1c1c30; padding: 0 18px; display: flex; align-items: center; justify-content: space-between; height: 50px; background: #0a0a14; flex-wrap: wrap; gap: 10px; }
-        .header-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700; color: #b09fff; }
-        .shell { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 50px); }
-        .sidebar { width: 200px; background: #0a0a14; border-right: 1px solid #1c1c30; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
-        .nav-section { padding: 8px 0; border-bottom: 1px solid #1c1c30; }
-        .nav-section:last-child { border-bottom: none; }
-        .nav-label { padding: 4px 14px 6px; font-size: 10px; color: #3a3a5a; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; }
-        .nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 14px; cursor: pointer; font-size: 12.5px; color: #6060a0; transition: all 0.12s; }
-        .nav-item:hover { color: #b09fff; }
-        .nav-item.active { background: #16162a; color: #b09fff; border-left: 2px solid #7c5cfc; font-weight: 600; }
-        .editor { flex: 1; overflow-y: auto; padding: 18px 22px; background: #080810; }
-        .preview { width: 400px; border-left: 1px solid #1c1c30; overflow-y: auto; background: #f4f3f0; padding: 24px; color: #1a1a2a; flex-shrink: 0; }
-        .card { background: #0e0e1c; border: 1px solid #1c1c30; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
-        .inp { width: 100%; background: #080812; border: 1px solid #1c1c30; border-radius: 6px; padding: 8px 10px; color: #e2e0f0; font-size: 13px; outline: none; margin-bottom: 10px; font-family: 'Sora', sans-serif; }
-        .inp:focus { border-color: #7c5cfc; }
-        .lbl { font-size: 11px; color: #6060a0; margin-bottom: 3px; display: block; font-weight: 500; }
-        .row { display: flex; gap: 10px; margin-bottom: 10px; }
-        .row .inp { margin-bottom: 0; }
-        .btn { padding: 8px 14px; border-radius: 6px; border: 1px solid #1c1c30; background: #14142a; color: #b09fff; font-size: 12px; font-weight: 600; cursor: pointer; margin-right: 8px; }
-        .btn:hover { background: #1a1a40; }
-        .btn-primary { background: #7c5cfc; color: #000; border: none; }
-        .btn-primary:hover { background: #9585ff; }
-        .btn-danger { border-color: #4a1a1a; color: #f87171; }
-        .btn-danger:hover { background: #2a1010; }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .section-header h3 { font-size: 11px; color: #6060a0; text-transform: uppercase; letter-spacing: 0.08em; }
-        .preview-header { text-align: center; margin-bottom: 15px; }
-        .preview-name { font-size: 20px; font-weight: 700; }
-        .preview-title { font-size: 12px; color: #4a3aaa; margin-top: 2px; }
-        .preview-contact { font-size: 10px; color: #666; margin-top: 4px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-        .preview-section { margin-top: 16px; }
-        .preview-section-title { font-size: 10px; font-weight: 700; color: #4a3aaa; border-bottom: 1.5px solid #4a3aaa; padding-bottom: 2px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
-        .preview-item { margin-bottom: 8px; }
-        .preview-item-title { font-weight: 600; font-size: 11px; }
-        .preview-item-sub { font-size: 10px; color: #4a3aaa; }
-        .preview-item-date { font-size: 9.5px; color: #666; float: right; font-weight: 400; }
-        .preview-text { font-size: 10px; color: #555; margin-top: 2px; }
-        .preview-skills { font-size: 10px; }
-        .preview-skills strong { color: #666; }
-        .bullet-input { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-        .bullet-input input { flex: 1; }
-        .bullet-input button { padding: 4px 8px; font-size: 10px; }
-        .empty-msg { color: #3a3a5a; font-size: 12px; font-style: italic; }
-        .back-link { position: fixed; top: 12px; left: 16px; color: #6060a0; z-index: 100; font-size: 13px; text-decoration: none; }
-        .back-link:hover { color: #b09fff; }
-        @media (max-width: 900px) { .shell { flex-direction: column; } .preview { width: 100%; border-left: none; border-top: 1px solid #1c1c30; } .sidebar { width: 100%; flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid #1c1c30; } }
+        body {
+            background: var(--bg);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+        }
+        a { color: inherit; text-decoration: none; }
+        
+        .header {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .back-link {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .back-link:hover { color: var(--accent); }
+        
+        .header-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+        .hero h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .hero p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .project-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(124, 92, 252, 0.15);
+            border-color: var(--accent);
+        }
+        
+        .project-icon {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .project-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+        
+        .project-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .project-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: rgba(124, 92, 252, 0.15);
+            color: var(--accent);
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            width: fit-content;
+        }
+        
+        @media (max-width: 640px) {
+            .container { padding: 1rem; }
+            .hero h1 { font-size: 1.75rem; }
+            .projects-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <a href="index.html" class="back-link">← Back to Site</a>
-    <div id="root"></div>
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+    <header class="header">
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Site</span>
+        </a>
+        <span class="header-title">My Projects</span>
+        <a href="projects.html" class="back-link">CV Studio</a>
+    </header>
+    
+    <div class="container">
+        <div class="hero">
+            <h1>Project Showcase</h1>
+            <p>A collection of my work - games, tools, and experiments</p>
+        </div>
         
-        const uid = () => Math.random().toString(36).slice(2, 9);
+        <h2 class="section-title">Games</h2>
+        <div class="projects-grid">
+            <a href="assets/game/index.html" class="project-card" target="_blank">
+                <div class="project-icon">⚔️</div>
+                <div class="project-title">Text-Based RPG</div>
+                <div class="project-desc">A simple text-based adventure game with inventory, exploration, and character stats</div>
+                <span class="project-tag">Game</span>
+            </a>
+            <a href="assets/snake/index.html" class="project-card" target="_blank">
+                <div class="project-icon">🐍</div>
+                <div class="project-title">Snake</div>
+                <div class="project-desc">Classic snake game with high scores, speed options, and wall wrap mode</div>
+                <span class="project-tag">Game</span>
+            </a>
+            <a href="assets/flappy/index.html" class="project-card" target="_blank">
+                <div class="project-icon">🐦</div>
+                <div class="project-title">Flappy Bird</div>
+                <div class="project-desc">Flappy bird clone with adjustable difficulty and high scores</div>
+                <span class="project-tag">Game</span>
+            </a>
+        </div>
         
-        const EMPTY_CV = {
-            personal: { name: "", title: "", email: "", phone: "", location: "", linkedin: "", github: "", website: "", summary: "" },
-            experience: [],
-            education: [],
-            skills: { technical: [], tools: [], soft: [], other: [] },
-            certifications: [],
-            projects: [],
-            languages: [],
-            awards: [],
-            volunteering: []
-        };
+        <h2 class="section-title">Tools & Apps</h2>
+        <div class="projects-grid">
+            <a href="assets/music.html" class="project-card" target="_blank">
+                <div class="project-icon">🎵</div>
+                <div class="project-title">Music Vault</div>
+                <div class="project-desc">Private password-protected music player with ranking, queue, and Firebase play counts</div>
+                <span class="project-tag">App</span>
+            </a>
+            <a href="assets/password-gen/index.html" class="project-card" target="_blank">
+                <div class="project-icon">🔐</div>
+                <div class="project-title">Password Generator</div>
+                <div class="project-desc">Generate secure passwords with customizable length and character options</div>
+                <span class="project-tag">Tool</span>
+            </a>
+            <a href="assets/qr-gen/index.html" class="project-card" target="_blank">
+                <div class="project-icon">📱</div>
+                <div class="project-title">QR Code Generator</div>
+                <div class="project-desc">Create QR codes from text or URLs with download option</div>
+                <span class="project-tag">Tool</span>
+            </a>
+            <a href="assets/palette/index.html" class="project-card" target="_blank">
+                <div class="project-icon">🎨</div>
+                <div class="project-title">Color Palette Generator</div>
+                <div class="project-desc">Extract colors from images or generate random palettes</div>
+                <span class="project-tag">Tool</span>
+            </a>
+            <a href="assets/pixel-art/index.html" class="project-card" target="_blank">
+                <div class="project-icon">🎮</div>
+                <div class="project-title">Pixel Art Editor</div>
+                <div class="project-desc">Create pixel art with draw, erase, and fill tools</div>
+                <span class="project-tag">Tool</span>
+            </a>
+            <a href="assets/pattern/index.html" class="project-card" target="_blank">
+                <div class="project-icon">✨</div>
+                <div class="project-title">Pattern Generator</div>
+                <div class="project-desc">Create CSS patterns - checkerboard, stripes, dots, and more</div>
+                <span class="project-tag">Tool</span>
+            </a>
+            <a href="assets/wire-setup/index.html" class="project-card" target="_blank">
+                <div class="project-icon">⚙️</div>
+                <div class="project-title">Wire Annealing Setup</div>
+                <div class="project-desc">Configure furnace temperature, speed, tension for wire processing</div>
+                <span class="project-tag">Tool</span>
+            </a>
+            <a href="https://github.com/Nobzie" class="project-card" target="_blank">
+                <div class="project-icon">💻</div>
+                <div class="project-title">GitHub Profile</div>
+                <div class="project-desc">Check out my open source projects and contributions on GitHub</div>
+                <span class="project-tag">Profile</span>
+            </a>
+        </div>
         
-        function CVStudio() {
-            const [cv, setCV] = useState(() => {
-                try { 
-                    const s = localStorage.getItem("cvs3");
-                    const parsed = s ? JSON.parse(s) : null;
-                    if (parsed && (parsed.personal?.name || parsed.experience?.length > 0)) return parsed;
-                    return EMPTY_CV;
-                } catch { return EMPTY_CV; }
-            });
-            const [tab, setTab] = useState("personal");
-            const [showPreview, setShowPreview] = useState(true);
-            
-            useEffect(() => { localStorage.setItem("cvs3", JSON.stringify(cv)); }, [cv]);
-            
-            const updateCV = (updates) => setCV(prev => ({ ...prev, ...updates }));
-            
-            const addExperience = () => setCV(c => ({ ...c, experience: [...c.experience, { id: uid(), company: "", role: "", start: "", end: "", current: false, location: "", bullets: [""] }] }));
-            const removeExperience = (id) => setCV(c => ({ ...c, experience: c.experience.filter(e => e.id !== id) }));
-            const updateExperience = (id, field, value) => setCV(c => ({ ...c, experience: c.experience.map(e => e.id === id ? { ...e, [field]: value } : e) }));
-            
-            const addEducation = () => setCV(c => ({ ...c, education: [...c.education, { id: uid(), institution: "", degree: "", field: "", start: "", end: "", grade: "", notes: "" }] }));
-            const removeEducation = (id) => setCV(c => ({ ...c, education: c.education.filter(e => e.id !== id) }));
-            const updateEducation = (id, field, value) => setCV(c => ({ ...c, education: c.education.map(e => e.id === id ? { ...e, [field]: value } : e) }));
-            
-            const addSkill = (cat) => {
-                const val = prompt(`Add ${cat} skill:`);
-                if (val && val.trim()) {
-                    setCV(c => ({ ...c, skills: { ...c.skills, [cat]: [...(c.skills[cat] || []), val.trim()] } }));
-                }
-            };
-            const removeSkill = (cat, idx) => setCV(c => ({ ...c, skills: { ...c.skills, [cat]: c.skills[cat].filter((_, i) => i !== idx) } }));
-            
-            const addProject = () => setCV(c => ({ ...c, projects: [...c.projects, { id: uid(), name: "", url: "", tech: "", description: "", bullets: [""] }] }));
-            const removeProject = (id) => setCV(c => ({ ...c, projects: c.projects.filter(p => p.id !== id) }));
-            const updateProject = (id, field, value) => setCV(c => ({ ...c, projects: c.projects.map(p => p.id === id ? { ...p, [field]: value } : p) }));
-            
-            const addCert = () => setCV(c => ({ ...c, certifications: [...c.certifications, { id: uid(), name: "", issuer: "", date: "", expires: "", url: "" }] }));
-            const removeCert = (id) => setCV(c => ({ ...c, certifications: c.certifications.filter(cert => cert.id !== id) }));
-            const updateCert = (id, field, value) => setCV(c => ({ ...c, certifications: c.certifications.map(cert => cert.id === id ? { ...cert, [field]: value } : cert) }));
-            
-            const addLang = () => setCV(c => ({ ...c, languages: [...c.languages, { id: uid(), language: "", level: "" }] }));
-            const removeLang = (id) => setCV(c => ({ ...c, languages: c.languages.filter(l => l.id !== id) }));
-            const updateLang = (id, field, value) => setCV(c => ({ ...c, languages: c.languages.map(l => l.id === id ? { ...l, [field]: value } : l) }));
-            
-            const addAward = () => setCV(c => ({ ...c, awards: [...c.awards, { id: uid(), title: "", issuer: "", date: "", description: "" }] }));
-            const removeAward = (id) => setCV(c => ({ ...c, awards: c.awards.filter(a => a.id !== id) }));
-            const updateAward = (id, field, value) => setCV(c => ({ ...c, awards: c.awards.map(a => a.id === id ? { ...a, [field]: value } : a) }));
-            
-            const exportJSON = () => {
-                const blob = new Blob([JSON.stringify(cv, null, 2)], { type: "application/json" });
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = `${cv.personal.name || "cv"}.json`;
-                a.click();
-            };
-            
-            const importJSON = (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = (ev) => {
-                    try {
-                        const data = JSON.parse(ev.target.result);
-                        setCV({ ...EMPTY_CV, ...data });
-                        alert("CV imported successfully!");
-                    } catch { alert("Invalid JSON file"); }
-                };
-                reader.readAsText(file);
-                e.target.value = "";
-            };
-            
-            return (
-                <div className="app">
-                    <div className="header">
-                        <span className="header-title">CV Studio</span>
-                        <div style={{display:'flex',gap:8}}>
-                            <input type="file" accept=".json" id="importFile" style={{display:'none'}} onChange={importJSON} />
-                            <button className="btn" onClick={() => document.getElementById('importFile').click()}>📂 Import</button>
-                            <button className="btn" onClick={exportJSON}>💾 Export JSON</button>
-                            <button className="btn btn-primary" onClick={() => setShowPreview(!showPreview)}>{showPreview ? 'Hide Preview' : 'Show Preview'}</button>
-                        </div>
-                    </div>
-                    <div className="shell">
-                        <div className="sidebar">
-                            <div className="nav-section">
-                                <div className="nav-label">Build</div>
-                                <div className={`nav-item ${tab === 'personal' ? 'active' : ''}`} onClick={() => setTab('personal')}>👤 Personal</div>
-                                <div className={`nav-item ${tab === 'experience' ? 'active' : ''}`} onClick={() => setTab('experience')}>💼 Experience</div>
-                                <div className={`nav-item ${tab === 'education' ? 'active' : ''}`} onClick={() => setTab('education')}>🎓 Education</div>
-                                <div className={`nav-item ${tab === 'skills' ? 'active' : ''}`} onClick={() => setTab('skills')}>⚡ Skills</div>
-                            </div>
-                            <div className="nav-section">
-                                <div className="nav-label">Additional</div>
-                                <div className={`nav-item ${tab === 'projects' ? 'active' : ''}`} onClick={() => setTab('projects')}>🚀 Projects</div>
-                                <div className={`nav-item ${tab === 'certifications' ? 'active' : ''}`} onClick={() => setTab('certifications')}>🏆 Certifications</div>
-                                <div className={`nav-item ${tab === 'languages' ? 'active' : ''}`} onClick={() => setTab('languages')}>🌍 Languages</div>
-                                <div className={`nav-item ${tab === 'awards' ? 'active' : ''}`} onClick={() => setTab('awards')}>⭐ Awards</div>
-                            </div>
-                        </div>
-                        
-                        <div className="editor">
-                            {tab === 'personal' && (
-                                <div className="card">
-                                    <div className="section-header"><h3>Personal Details</h3></div>
-                                    <label className="lbl">Full Name</label>
-                                    <input className="inp" value={cv.personal.name} onChange={e => updateCV({ personal: { ...cv.personal, name: e.target.value } })} />
-                                    <label className="lbl">Job Title</label>
-                                    <input className="inp" value={cv.personal.title} onChange={e => updateCV({ personal: { ...cv.personal, title: e.target.value } })} />
-                                    <div className="row">
-                                        <div style={{flex:1}}>
-                                            <label className="lbl">Email</label>
-                                            <input className="inp" value={cv.personal.email} onChange={e => updateCV({ personal: { ...cv.personal, email: e.target.value } })} />
-                                        </div>
-                                        <div style={{flex:1}}>
-                                            <label className="lbl">Phone</label>
-                                            <input className="inp" value={cv.personal.phone} onChange={e => updateCV({ personal: { ...cv.personal, phone: e.target.value } })} />
-                                        </div>
-                                    </div>
-                                    <label className="lbl">Location</label>
-                                    <input className="inp" value={cv.personal.location} onChange={e => updateCV({ personal: { ...cv.personal, location: e.target.value } })} />
-                                    <div className="row">
-                                        <div style={{flex:1}}>
-                                            <label className="lbl">LinkedIn</label>
-                                            <input className="inp" value={cv.personal.linkedin} onChange={e => updateCV({ personal: { ...cv.personal, linkedin: e.target.value } })} />
-                                        </div>
-                                        <div style={{flex:1}}>
-                                            <label className="lbl">GitHub</label>
-                                            <input className="inp" value={cv.personal.github} onChange={e => updateCV({ personal: { ...cv.personal, github: e.target.value } })} />
-                                        </div>
-                                    </div>
-                                    <label className="lbl">Professional Summary</label>
-                                    <textarea className="inp" rows={4} value={cv.personal.summary} onChange={e => updateCV({ personal: { ...cv.personal, summary: e.target.value } })} />
-                                </div>
-                            )}
-                            
-                            {tab === 'experience' && (
-                                <div>
-                                    <div className="section-header">
-                                        <h3>Work Experience</h3>
-                                        <button className="btn btn-primary" onClick={addExperience}>+ Add</button>
-                                    </div>
-                                    {cv.experience.length === 0 && <p className="empty-msg">No experience added yet. Click "+ Add" to add your work history.</p>}
-                                    {cv.experience.map((exp, i) => (
-                                        <div key={exp.id} className="card">
-                                            <input className="inp" placeholder="Company" value={exp.company} onChange={e => updateExperience(exp.id, 'company', e.target.value)} />
-                                            <input className="inp" placeholder="Role / Job Title" value={exp.role} onChange={e => updateExperience(exp.id, 'role', e.target.value)} />
-                                            <div className="row">
-                                                <input className="inp" placeholder="Start Date" value={exp.start} onChange={e => updateExperience(exp.id, 'start', e.target.value)} />
-                                                <input className="inp" placeholder="End Date" value={exp.end} onChange={e => updateExperience(exp.id, 'end', e.target.value)} />
-                                            </div>
-                                            <input className="inp" placeholder="Location" value={exp.location} onChange={e => updateExperience(exp.id, 'location', e.target.value)} />
-                                            <label className="lbl">Achievements / Responsibilities (one per line)</label>
-                                            <textarea className="inp" rows={4} value={exp.bullets?.join('\n') || ''} onChange={e => updateExperience(exp.id, 'bullets', e.target.value.split('\n').filter(Boolean))} />
-                                            <button className="btn btn-danger" onClick={() => removeExperience(exp.id)}>Remove</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            
-                            {tab === 'education' && (
-                                <div>
-                                    <div className="section-header">
-                                        <h3>Education</h3>
-                                        <button className="btn btn-primary" onClick={addEducation}>+ Add</button>
-                                    </div>
-                                    {cv.education.length === 0 && <p className="empty-msg">No education added yet.</p>}
-                                    {cv.education.map((edu, i) => (
-                                        <div key={edu.id} className="card">
-                                            <input className="inp" placeholder="Institution" value={edu.institution} onChange={e => updateEducation(edu.id, 'institution', e.target.value)} />
-                                            <div className="row">
-                                                <input className="inp" placeholder="Degree" value={edu.degree} onChange={e => updateEducation(edu.id, 'degree', e.target.value)} />
-                                                <input className="inp" placeholder="Field of Study" value={edu.field} onChange={e => updateEducation(edu.id, 'field', e.target.value)} />
-                                            </div>
-                                            <div className="row">
-                                                <input className="inp" placeholder="Start" value={edu.start} onChange={e => updateEducation(edu.id, 'start', e.target.value)} />
-                                                <input className="inp" placeholder="End" value={edu.end} onChange={e => updateEducation(edu.id, 'end', e.target.value)} />
-                                            </div>
-                                            <input className="inp" placeholder="Grade / Result" value={edu.grade} onChange={e => updateEducation(edu.id, 'grade', e.target.value)} />
-                                            <button className="btn btn-danger" onClick={() => removeEducation(edu.id)}>Remove</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            
-                            {tab === 'skills' && (
-                                <div className="card">
-                                    <div className="section-header"><h3>Skills</h3></div>
-                                    {['technical', 'tools', 'soft', 'other'].map(cat => (
-                                        <div key={cat} style={{marginBottom: 16}}>
-                                            <label className="lbl" style={{textTransform:'capitalize'}}>{cat} Skills</label>
-                                            <div style={{display:'flex', flexWrap:'wrap', gap: 6, marginBottom: 6}}>
-                                                {(cv.skills[cat] || []).map((skill, i) => (
-                                                    <span key={i} style={{background:'#16162a', padding:'4px 10px', borderRadius:14, fontSize:12, display:'flex', alignItems:'center', gap:6}}>
-                                                        {skill}
-                                                        <span style={{cursor:'pointer', color:'#f87171'}} onClick={() => removeSkill(cat, i)}>×</span>
-                                                    </span>
-                                                ))}
-                                            </div>
-                                            <button className="btn" onClick={() => addSkill(cat)}>+ Add {cat}</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            
-                            {tab === 'projects' && (
-                                <div>
-                                    <div className="section-header">
-                                        <h3>Projects</h3>
-                                        <button className="btn btn-primary" onClick={addProject}>+ Add</button>
-                                    </div>
-                                    {cv.projects.length === 0 && <p className="empty-msg">No projects added yet.</p>}
-                                    {cv.projects.map((proj, i) => (
-                                        <div key={proj.id} className="card">
-                                            <input className="inp" placeholder="Project Name" value={proj.name} onChange={e => updateProject(proj.id, 'name', e.target.value)} />
-                                            <input className="inp" placeholder="Technologies Used" value={proj.tech} onChange={e => updateProject(proj.id, 'tech', e.target.value)} />
-                                            <input className="inp" placeholder="Project URL" value={proj.url} onChange={e => updateProject(proj.id, 'url', e.target.value)} />
-                                            <textarea className="inp" rows={2} placeholder="Description" value={proj.description} onChange={e => updateProject(proj.id, 'description', e.target.value)} />
-                                            <button className="btn btn-danger" onClick={() => removeProject(proj.id)}>Remove</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            
-                            {tab === 'certifications' && (
-                                <div>
-                                    <div className="section-header">
-                                        <h3>Certifications</h3>
-                                        <button className="btn btn-primary" onClick={addCert}>+ Add</button>
-                                    </div>
-                                    {cv.certifications.length === 0 && <p className="empty-msg">No certifications added yet.</p>}
-                                    {cv.certifications.map((cert, i) => (
-                                        <div key={cert.id} className="card">
-                                            <input className="inp" placeholder="Certification Name" value={cert.name} onChange={e => updateCert(cert.id, 'name', e.target.value)} />
-                                            <input className="inp" placeholder="Issuing Organization" value={cert.issuer} onChange={e => updateCert(cert.id, 'issuer', e.target.value)} />
-                                            <div className="row">
-                                                <input className="inp" placeholder="Date Obtained" value={cert.date} onChange={e => updateCert(cert.id, 'date', e.target.value)} />
-                                                <input className="inp" placeholder="Expiry Date" value={cert.expires} onChange={e => updateCert(cert.id, 'expires', e.target.value)} />
-                                            </div>
-                                            <input className="inp" placeholder="Credential URL" value={cert.url} onChange={e => updateCert(cert.id, 'url', e.target.value)} />
-                                            <button className="btn btn-danger" onClick={() => removeCert(cert.id)}>Remove</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            
-                            {tab === 'languages' && (
-                                <div>
-                                    <div className="section-header">
-                                        <h3>Languages</h3>
-                                        <button className="btn btn-primary" onClick={addLang}>+ Add</button>
-                                    </div>
-                                    {cv.languages.length === 0 && <p className="empty-msg">No languages added yet.</p>}
-                                    {cv.languages.map((lang, i) => (
-                                        <div key={lang.id} className="card">
-                                            <div className="row">
-                                                <input className="inp" placeholder="Language" value={lang.language} onChange={e => updateLang(lang.id, 'language', e.target.value)} />
-                                                <input className="inp" placeholder="Proficiency (e.g., Native, Fluent, Intermediate)" value={lang.level} onChange={e => updateLang(lang.id, 'level', e.target.value)} />
-                                            </div>
-                                            <button className="btn btn-danger" onClick={() => removeLang(lang.id)}>Remove</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                            
-                            {tab === 'awards' && (
-                                <div>
-                                    <div className="section-header">
-                                        <h3>Awards & Achievements</h3>
-                                        <button className="btn btn-primary" onClick={addAward}>+ Add</button>
-                                    </div>
-                                    {cv.awards.length === 0 && <p className="empty-msg">No awards added yet.</p>}
-                                    {cv.awards.map((award, i) => (
-                                        <div key={award.id} className="card">
-                                            <input className="inp" placeholder="Award Title" value={award.title} onChange={e => updateAward(award.id, 'title', e.target.value)} />
-                                            <input className="inp" placeholder="Issuing Organization" value={award.issuer} onChange={e => updateAward(award.id, 'issuer', e.target.value)} />
-                                            <input className="inp" placeholder="Date" value={award.date} onChange={e => updateAward(award.id, 'date', e.target.value)} />
-                                            <textarea className="inp" rows={2} placeholder="Description" value={award.description} onChange={e => updateAward(award.id, 'description', e.target.value)} />
-                                            <button className="btn btn-danger" onClick={() => removeAward(award.id)}>Remove</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                        
-                        {showPreview && (
-                            <div className="preview">
-                                <div className="preview-header">
-                                    <div className="preview-name">{cv.personal.name || 'Your Name'}</div>
-                                    {cv.personal.title && <div className="preview-title">{cv.personal.title}</div>}
-                                    <div className="preview-contact">
-                                        {cv.personal.email && <span>{cv.personal.email}</span>}
-                                        {cv.personal.phone && <span>{cv.personal.phone}</span>}
-                                        {cv.personal.location && <span>{cv.personal.location}</span>}
-                                        {cv.personal.linkedin && <span>{cv.personal.linkedin}</span>}
-                                        {cv.personal.github && <span>{cv.personal.github}</span>}
-                                    </div>
-                                </div>
-                                
-                                {cv.personal.summary && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Profile</div>
-                                        <div className="preview-text">{cv.personal.summary}</div>
-                                    </div>
-                                )}
-                                
-                                {cv.experience.length > 0 && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Experience</div>
-                                        {cv.experience.map(exp => (
-                                            <div key={exp.id} className="preview-item">
-                                                <div>
-                                                    <span className="preview-item-title">{exp.role}</span>
-                                                    <span className="preview-item-date">{exp.start} - {exp.end || 'Present'}</span>
-                                                </div>
-                                                <div className="preview-item-sub">{exp.company}{exp.location && ` · ${exp.location}`}</div>
-                                                {exp.bullets?.filter(Boolean).map((b, i) => (
-                                                    <div key={i} className="preview-text" style={{marginLeft: 10}}>• {b}</div>
-                                                ))}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                
-                                {cv.skills.technical.length > 0 && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Skills</div>
-                                        <div className="preview-skills">
-                                            {cv.skills.technical.length > 0 && <div><strong>Technical:</strong> {cv.skills.technical.join(', ')}</div>}
-                                            {cv.skills.tools.length > 0 && <div><strong>Tools:</strong> {cv.skills.tools.join(', ')}</div>}
-                                            {cv.skills.soft.length > 0 && <div><strong>Soft Skills:</strong> {cv.skills.soft.join(', ')}</div>}
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {cv.education.length > 0 && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Education</div>
-                                        {cv.education.map(edu => (
-                                            <div key={edu.id} className="preview-item">
-                                                <div>
-                                                    <span className="preview-item-title">{edu.degree}{edu.field && ` in ${edu.field}`}</span>
-                                                    <span className="preview-item-date">{edu.start} - {edu.end}</span>
-                                                </div>
-                                                <div className="preview-item-sub">{edu.institution}{edu.grade && ` · ${edu.grade}`}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                
-                                {cv.projects.length > 0 && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Projects</div>
-                                        {cv.projects.map(proj => (
-                                            <div key={proj.id} className="preview-item">
-                                                <div className="preview-item-title">{proj.name}{proj.tech && <span style={{fontWeight:400, color:'#666', fontSize:10}}> · {proj.tech}</span>}</div>
-                                                {proj.url && <div className="preview-item-sub">{proj.url}</div>}
-                                                {proj.description && <div className="preview-text">{proj.description}</div>}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                
-                                {cv.certifications.length > 0 && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Certifications</div>
-                                        {cv.certifications.map(cert => (
-                                            <div key={cert.id} className="preview-item">
-                                                <div className="preview-item-title">{cert.name}</div>
-                                                <div className="preview-item-sub">{cert.issuer}{cert.date && ` · ${cert.date}`}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                
-                                {cv.languages.length > 0 && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Languages</div>
-                                        <div className="preview-text">
-                                            {cv.languages.map(l => `${l.language}${l.level ? ` (${l.level})` : ''}`).join(' · ')}
-                                        </div>
-                                    </div>
-                                )}
-                                
-                                {cv.awards.length > 0 && (
-                                    <div className="preview-section">
-                                        <div className="preview-section-title">Awards</div>
-                                        {cv.awards.map(award => (
-                                            <div key={award.id} className="preview-item">
-                                                <div className="preview-item-title">{award.title}</div>
-                                                <div className="preview-item-sub">{award.issuer}{award.date && ` · ${award.date}`}</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                </div>
-            );
-        }
-        
-        ReactDOM.createRoot(document.getElementById('root')).render(<CVStudio />);
-    </script>
+        <h2 class="section-title">Experiments</h2>
+        <div class="projects-grid">
+            <a href="ascii-art.html" class="project-card">
+                <div class="project-icon">🖼️</div>
+                <div class="project-title">CSS & ASCII Art</div>
+                <div class="project-desc">Creative artwork made with pure CSS and ASCII characters</div>
+                <span class="project-tag">Creative</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>
