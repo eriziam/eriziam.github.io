@@ -85,6 +85,65 @@
             gap: 0.75rem;
         }
         
+        .check-btn {
+            width: 100%;
+            background: #1a3a2a;
+            border: 1px solid #2a5a3a;
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: #55ff55;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.2s;
+        }
+        .check-btn:hover {
+            background: #2a4a3a;
+            border-color: #55ff55;
+        }
+        
+        .my-wire-results {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #1c1c30;
+        }
+        
+        .mw-result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid #1a2a20;
+        }
+        .mw-label { color: #8a8aa0; font-size: 0.8rem; }
+        .mw-value { font-family: 'Fira Code', monospace; font-size: 0.8rem; }
+        .mw-value.pass { color: #55ff55; }
+        .mw-value.fail { color: #ff5555; }
+        .mw-value.warn { color: #ffdd55; }
+        
+        .mw-recommendations {
+            margin-top: 1rem;
+            background: rgba(85, 255, 85, 0.05);
+            border-radius: 6px;
+            padding: 0.75rem;
+        }
+        
+        .mw-rec-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #55ff55;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mw-recommendations ul {
+            font-size: 0.8rem;
+            color: #8a8aa0;
+            padding-left: 1rem;
+            margin: 0;
+        }
+        .mw-recommendations li { margin-bottom: 0.35rem; }
+        
         .slider-group {
             margin-bottom: 1rem;
         }
@@ -176,11 +235,16 @@
             <div class="form-group">
                 <label>Material</label>
                 <select id="material">
-                    <option value="copper">Copper (Cu)</option>
-                    <option value="aluminum">Aluminum (Al)</option>
-                    <option value="steel">Steel / Carbon Steel</option>
+                    <option value="copper">Copper (C101) - 99.9% Cu</option>
+                    <option value="brass">Brass (CuZn15) - 85% Cu</option>
+                    <option value="phosphorBronze">Phosphor Bronze (CuSn5)</option>
+                    <option value="nickelSilver">Nickel Silver (CuNi18Zn20)</option>
+                    <option value="copperNickel">Copper Nickel (CuNi10)</option>
+                    <option value="constantan">Constantan (CuNi44)</option>
+                    <option value="aluminum">Aluminum (1070A)</option>
+                    <option value="steel">Carbon Steel</option>
                     <option value="stainless">Stainless Steel</option>
-                    <option value="nickel">Nickel Alloy</option>
+                    <option value="nickel">Nickel (Ni 201)</option>
                 </select>
             </div>
             
@@ -255,7 +319,7 @@
             
             <div class="form-row">
                 <div class="form-group">
-                    <label>Min Tensile (MPa)</label>
+                    <label>Min Tensile (N/mm²)</label>
                     <input type="number" id="reqTensile" value="200">
                 </div>
                 <div class="form-group">
@@ -266,12 +330,65 @@
             
             <div class="form-row">
                 <div class="form-group">
-                    <label>Max Resistance (Ω/km)</label>
-                    <input type="number" id="reqResistance" value="100" step="0.1">
+                    <label>Max Resistance (Ω/m)</label>
+                    <input type="number" id="reqResistance" value="0.5" step="0.01">
                 </div>
                 <div class="form-group">
                     <label>Size Tolerance (±mm)</label>
                     <input type="number" id="reqTolerance" value="0.01" step="0.001">
+                </div>
+            </div>
+        </div>
+        
+        <!-- My Wire - Current Measurements -->
+        <div class="card" style="border-color: #2a4a3a;">
+            <div class="card-title" style="color: #55ff55;">📏 My Wire - Measurements</div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Measured Diameter (mm)</label>
+                    <input type="number" id="measuredDiameter" value="" step="0.001" placeholder="e.g. 0.502">
+                </div>
+                <div class="form-group">
+                    <label>Measured Tensile (N/mm²)</label>
+                    <input type="number" id="measuredTensile" value="" placeholder="e.g. 280">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Measured Elongation (%)</label>
+                    <input type="number" id="measuredElongation" value="" placeholder="e.g. 18">
+                </div>
+                <div class="form-group">
+                    <label>Measured Resistance (Ω/m)</label>
+                    <input type="number" id="measuredResistance" value="" step="0.0001" placeholder="e.g. 0.0685">
+                </div>
+            </div>
+            
+            <button class="check-btn" onclick="checkMyWire()">Check My Wire</button>
+            
+            <div id="myWireResults" class="my-wire-results" style="display: none;">
+                <div class="mw-result-item">
+                    <span class="mw-label">Diameter Status</span>
+                    <span class="mw-value" id="mwDiameter"></span>
+                </div>
+                <div class="mw-result-item">
+                    <span class="mw-label">Tensile Status</span>
+                    <span class="mw-value" id="mwTensile"></span>
+                </div>
+                <div class="mw-result-item">
+                    <span class="mw-label">Elongation Status</span>
+                    <span class="mw-value" id="mwElongation"></span>
+                </div>
+                <div class="mw-result-item">
+                    <span class="mw-label">Resistance Status</span>
+                    <span class="mw-value" id="mwResistance"></span>
+                </div>
+                
+                <div class="mw-recommendations" id="mwRecommendations">
+                    <div class="mw-rec-title">💡 Recommendations</div>
+                    <ul id="recList"></ul>
                 </div>
             </div>
         </div>
@@ -281,16 +398,16 @@
             <div class="card-title">Predicted Results</div>
             
             <div class="result-item">
-                <span class="result-label">Tensile Strength</span>
-                <span class="result-value" id="resTensile">220 MPa</span>
+                <span class="result-label">Tensile Strength (N/mm²)</span>
+                <span class="result-value" id="resTensile">220 N/mm²</span>
             </div>
             <div class="result-item">
                 <span class="result-label">Elongation</span>
                 <span class="result-value" id="resElongation">25%</span>
             </div>
             <div class="result-item">
-                <span class="result-label">Resistance</span>
-                <span class="result-value" id="resResistance">87.2 Ω/km</span>
+                <span class="result-label">Resistance (Ω/m)</span>
+                <span class="result-value" id="resResistance">0.0872 Ω/m</span>
             </div>
             <div class="result-item">
                 <span class="result-label">Size Deviation</span>
@@ -311,7 +428,7 @@
     <script>
         const materialData = {
             copper: {
-                name: 'Copper',
+                name: 'Copper (C101)',
                 annealMin: 350, annealMax: 500,
                 resistivity: 0.01724,
                 tensileHard: 380, tensileSoft: 220,
@@ -319,15 +436,39 @@
                 notes: ['High conductivity', 'Tensile vs elongation trade-off']
             },
             aluminum: {
-                name: 'Aluminum',
+                name: 'Aluminum (1070A)',
                 annealMin: 300, annealMax: 400,
                 resistivity: 0.0282,
                 tensileHard: 150, tensileSoft: 70,
                 elongationHard: 2, elongationSoft: 20,
                 notes: ['Low temperature required', 'Easily over-annealed']
             },
+            brass: {
+                name: 'Brass (CuZn15)',
+                annealMin: 400, annealMax: 550,
+                resistivity: 0.095,
+                tensileHard: 580, tensileSoft: 280,
+                elongationHard: 2, elongationSoft: 28,
+                notes: ['Good formability', 'May dezincify if overheated']
+            },
+            phosphorBronze: {
+                name: 'Phosphor Bronze (CuSn5)',
+                annealMin: 450, annealMax: 600,
+                resistivity: 0.086,
+                tensileHard: 800, tensileSoft: 340,
+                elongationHard: 1, elongationSoft: 28,
+                notes: ['Excellent fatigue resistance', 'Good spring properties']
+            },
+            nickelSilver: {
+                name: 'Nickel Silver (CuNi18Zn20)',
+                annealMin: 500, annealMax: 650,
+                resistivity: 0.30,
+                tensileHard: 780, tensileSoft: 430,
+                elongationHard: 1, elongationSoft: 25,
+                notes: ['High resistivity', 'Bright silver finish']
+            },
             steel: {
-                name: 'Steel',
+                name: 'Steel (Carbon)',
                 annealMin: 600, annealMax: 700,
                 resistivity: 0.12,
                 tensileHard: 800, tensileSoft: 400,
@@ -343,12 +484,28 @@
                 notes: ['Very high temp', 'Watch for sensitization']
             },
             nickel: {
-                name: 'Nickel Alloy',
+                name: 'Nickel Alloy (Ni 201)',
                 annealMin: 700, annealMax: 850,
-                resistivity: 0.09,
-                tensileHard: 700, tensileSoft: 450,
-                elongationHard: 2, elongationSoft: 12,
+                resistivity: 0.085,
+                tensileHard: 650, tensileSoft: 480,
+                elongationHard: 2, elongationSoft: 25,
                 notes: ['High temp required', 'Argon atmosphere preferred']
+            },
+            copperNickel: {
+                name: 'Copper Nickel (CuNi10)',
+                annealMin: 500, annealMax: 650,
+                resistivity: 0.143,
+                tensileHard: 450, tensileSoft: 350,
+                elongationHard: 2, elongationSoft: 25,
+                notes: ['Good corrosion resistance', 'Used for resistance heating']
+            },
+            constantan: {
+                name: 'Constantan (CuNi44)',
+                annealMin: 500, annealMax: 600,
+                resistivity: 0.49,
+                tensileHard: 600, tensileSoft: 450,
+                elongationHard: 2, elongationSoft: 25,
+                notes: ['Very high resistivity', 'Low temperature coefficient']
             }
         };
         
@@ -428,7 +585,7 @@
             elongation *= speedFactor;
             
             const resistFactor = 1 + (temperature - 20) * 0.004;
-            const resistance = (mat.resistivity / (diameter * diameter)) * resistFactor * 1000;
+            const resistance = (mat.resistivity / (diameter * diameter)) * resistFactor;
             
             let sizeDev = 0.005;
             if (spoolType === 'tension') sizeDev = 0.008;
@@ -457,13 +614,13 @@
                 statusText = 'ADJUST';
             }
             
-            document.getElementById('resTensile').textContent = Math.round(tensile) + ' MPa';
+            document.getElementById('resTensile').textContent = Math.round(tensile) + ' N/mm²';
             document.getElementById('resTensile').className = 'result-value ' + tensileMatch;
             
             document.getElementById('resElongation').textContent = Math.round(elongation) + '%';
             document.getElementById('resElongation').className = 'result-value ' + elongMatch;
             
-            document.getElementById('resResistance').textContent = resistance.toFixed(1) + ' Ω/km';
+            document.getElementById('resResistance').textContent = resistance.toFixed(4) + ' Ω/m';
             document.getElementById('resResistance').className = 'result-value ' + resistMatch;
             
             document.getElementById('resTolerance').textContent = '±' + sizeDev.toFixed(3) + 'mm';
@@ -496,6 +653,95 @@
             }
             
             document.getElementById('tipsList').innerHTML = tips.length ? tips.map(t => `<li>${t}</li>`).join('') : '<li>✓ Settings look good for target requirements</li>';
+        }
+        
+        function checkMyWire() {
+            const diameter = parseFloat(document.getElementById('measuredDiameter').value);
+            const tensile = parseFloat(document.getElementById('measuredTensile').value);
+            const elongation = parseFloat(document.getElementById('measuredElongation').value);
+            const resistance = parseFloat(document.getElementById('measuredResistance').value);
+            
+            const reqDiameter = parseFloat(document.getElementById('diameter').value);
+            const reqTolerance = parseFloat(document.getElementById('reqTolerance').value);
+            const reqTensile = parseFloat(document.getElementById('reqTensile').value);
+            const reqElongation = parseFloat(document.getElementById('reqElongation').value);
+            const reqResistance = parseFloat(document.getElementById('reqResistance').value);
+            
+            const mat = materialData[materialEl.value];
+            
+            const results = document.getElementById('myWireResults');
+            results.style.display = 'block';
+            
+            let recs = [];
+            
+            // Diameter check
+            const diameterDiff = Math.abs(diameter - reqDiameter);
+            const diamStatus = diameterDiff <= reqTolerance ? 
+                `<span class="pass">✓ ${diameter.toFixed(3)}mm (within ±${reqTolerance}mm)</span>` :
+                `<span class="fail">✗ ${diameter.toFixed(3)}mm (off by ${diameterDiff.toFixed(3)}mm)</span>`;
+            document.getElementById('mwDiameter').innerHTML = diamStatus;
+            
+            if (diameterDiff > reqTolerance) {
+                if (diameter > reqDiameter) {
+                    recs.push(`📏 <strong>Diameter too large:</strong> Reduce wire draw die size or increase tension slightly`);
+                } else {
+                    recs.push(`📏 <strong>Diameter too small:</strong> Use larger draw die or reduce tension`);
+                }
+            }
+            
+            // Tensile check
+            const tensStatus = tensile >= reqTensile ?
+                `<span class="pass">✓ ${tensile} N/mm² (meets min ${reqTensile})</span>` :
+                `<span class="fail">✗ ${tensile} N/mm² (below min ${reqTensile})</span>`;
+            document.getElementById('mwTensile').innerHTML = tensStatus;
+            
+            if (tensile < reqTensile) {
+                recs.push(`🔥 <strong>Tensile too low:</strong> Increase furnace temperature or add cooling before spool. Current temp should be ${mat.annealMin}-${mat.annealMax}°C for ${mat.name}`);
+                recs.push(`⚡ <strong>Or:</strong> Reduce dwell time - lower speed through furnace`);
+            }
+            
+            if (tensile > reqTensile * 1.2) {
+                recs.push(`❄️ <strong>Tensile too high:</strong> Decrease temperature or increase speed to reduce annealing`);
+            }
+            
+            // Elongation check
+            const elongStatus = elongation >= reqElongation ?
+                `<span class="pass">✓ ${elongation}% (meets min ${reqElongation}%)</span>` :
+                `<span class="fail">✗ ${elongation}% (below min ${reqElongation}%)</span>`;
+            document.getElementById('mwElongation').innerHTML = elongStatus;
+            
+            if (elongation < reqElongation) {
+                recs.push(`🌡️ <strong>Elongation too low:</strong> Wire is over-annealed - increase temperature or decrease speed`);
+                if (mat.name.includes('Copper')) {
+                    recs.push(`⚠️ <strong>Note:</strong> Copper tension vs elongation trade-off - may be difficult to achieve both high tensile AND elongation`);
+                }
+            }
+            
+            // Resistance check
+            const resistStatus = resistance <= reqResistance ?
+                `<span class="pass">✓ ${resistance} Ω/m (max ${reqResistance})</span>` :
+                `<span class="fail">✗ ${resistance} Ω/m (exceeds ${reqResistance})</span>`;
+            document.getElementById('mwResistance').innerHTML = resistStatus;
+            
+            const theoreticalR = mat.resistivity / (diameter * diameter);
+            if (resistance > theoreticalR * 1.1) {
+                recs.push(`⚡ <strong>Resistance high:</strong> Possible oxidation or contamination. Check wire surface. Expected ~${theoreticalR.toFixed(4)} Ω/m for clean wire`);
+            } else if (resistance < theoreticalR * 0.9) {
+                recs.push(`📊 <strong>Resistance low:</strong> Verify measurement - may be below theoretical minimum`);
+            }
+            
+            // Summary
+            const passCount = [diameterDiff <= reqTolerance, tensile >= reqTensile, elongation >= reqElongation, resistance <= reqResistance].filter(Boolean).length;
+            
+            if (passCount === 4) {
+                recs = ['✅ <strong>All measurements within tolerance!</strong> Wire meets client requirements.'];
+            } else if (passCount >= 2) {
+                recs.unshift(`⚠️ <strong>${passCount}/4 parameters pass.</strong> Focus on the failed ones above.`);
+            } else {
+                recs.unshift(`🚨 <strong>Multiple failures!</strong> Consider re-annealing or starting with different wire specification.`);
+            }
+            
+            document.getElementById('recList').innerHTML = recs.map(r => `<li>${r}</li>`).join('');
         }
         
         function updateSliderValue(id, val, suffix) {
