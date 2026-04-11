@@ -1,5 +1,6 @@
-// Navbar scroll effect
+// Navbar scroll effect + Scroll Progress
 const navbar = document.querySelector('.navbar');
+const scrollProgress = document.getElementById('scroll-progress');
 let ticking = false;
 
 function onScroll() {
@@ -7,6 +8,13 @@ function onScroll() {
     navbar.classList.add('scrolled');
   } else {
     navbar.classList.remove('scrolled');
+  }
+  
+  // Update scroll progress bar
+  if (scrollProgress) {
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = (window.scrollY / docHeight) * 100;
+    scrollProgress.style.width = progress + '%';
   }
 }
 
@@ -176,4 +184,45 @@ if (themeToggle) {
     const current = document.documentElement.getAttribute('data-theme');
     setTheme(current !== 'dark');
   });
+}
+
+// Typing Effect for Tagline
+const typedTextEl = document.getElementById('typed-text');
+if (typedTextEl) {
+  const phrases = [
+    'Building projects from scratch with simplicity.',
+    'Creating fully functional applications.',
+    'Specializing in responsive web solutions.',
+    'A fan of Java, C#, Python and pure HTML/CSS/JS.'
+  ];
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  
+  function type() {
+    const currentPhrase = phrases[phraseIndex];
+    
+    if (isDeleting) {
+      typedTextEl.textContent = currentPhrase.substring(0, charIndex - 1);
+      charIndex--;
+    } else {
+      typedTextEl.textContent = currentPhrase.substring(0, charIndex + 1);
+      charIndex++;
+    }
+    
+    let typeSpeed = isDeleting ? 30 : 50;
+    
+    if (!isDeleting && charIndex === currentPhrase.length) {
+      typeSpeed = 2000;
+      isDeleting = true;
+    } else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      phraseIndex = (phraseIndex + 1) % phrases.length;
+      typeSpeed = 500;
+    }
+    
+    setTimeout(type, typeSpeed);
+  }
+  
+  type();
 }

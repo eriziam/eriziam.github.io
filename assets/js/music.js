@@ -379,10 +379,11 @@ function updateQueueDisplay() {
                 <h2>Queue (${queue.length})</h2>
                 <button class="clear-queue-btn" id="clear-queue">Clear All</button>
             </div>
-            <ul class="track-list">
+            <ul class="track-list queue-list" id="queue-list">
                 ${queue.map((title, i) => `
-                    <li>
+                    <li draggable="true" data-index="${i}">
                         <span class="track-num">${i + 1}</span>
+                        <i class="fas fa-grip-lines drag-handle"></i>
                         <span class="track-title">${title}</span>
                         <button class="remove-queue" data-index="${i}"><i class="fas fa-times"></i></button>
                     </li>
@@ -399,6 +400,8 @@ function updateQueueDisplay() {
         queueSection.querySelectorAll(".remove-queue").forEach(btn => {
             btn.addEventListener("click", () => removeFromQueue(parseInt(btn.dataset.index)));
         });
+        
+        setupQueueDragDrop();
     }
 }
 
@@ -662,6 +665,39 @@ function updateRankings() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rankings));
 }
 
+function setupQueueDragDrop() {
+    const queueList = document.getElementById("queue-list");
+    if (!queueList) return;
+    
+    const items = queueList.querySelectorAll("li");
+    items.forEach(item => {
+        item.addEventListener("dragstart", () => item.classList.add("dragging"));
+        item.addEventListener("dragend", () => {
+            item.classList.remove("dragging");
+            updateQueueOrder();
+        });
+        item.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const after = getDragAfterElement(queueList, e.clientY);
+            if (after) queueList.insertBefore(item, after);
+            else queueList.appendChild(item);
+        });
+    });
+}
+
+function updateQueueOrder() {
+    const queueList = document.getElementById("queue-list");
+    const items = queueList.querySelectorAll("li");
+    const newOrder = [];
+    items.forEach(item => {
+        const title = item.querySelector(".track-title").textContent;
+        newOrder.push(title);
+    });
+    queue = newOrder;
+    localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+    updateQueueDisplay();
+}
+
 document.getElementById("save-rankings")?.addEventListener("click", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(rankings));
     const btn = document.getElementById("save-rankings");
@@ -748,3 +784,130 @@ document.addEventListener("contextmenu", (e) => {
         if (title) showContextMenu(e, title);
     }
 });
+
+// Shuffle Modes
+let shuffleMode = 'random'; // random, smart, weighted
+
+const shuffleModes = {
+    random: () => {
+        const filtered = getFilteredSongs();
+        return filtered[Math.floor(Math.random() * filtered.length)];
+    },
+    smart: () => {
+        // Prefer songs not recently played
+        const filtered = getFilteredSongs();
+        const notRecent = filtered.filter(s => !recentPlays.includes(s.title));
+        if (notRecent.length === 0) return filtered[Math.floor(Math.random() * filtered.length)];
+        return notRecent[Math.floor(Math.random() * notRecent.length)];
+    },
+    weighted: () => {
+        // Prefer lower play counts
+        const filtered = getFilteredSongs();
+        const sorted = [...filtered].sort((a, b) => (playCounts[a.title] || 0) - (playCounts[b.title] || 0));
+        // Bias toward less played but not always the least
+        const idx = Math.floor(Math.pow(Math.random(), 2) * sorted.length);
+        return sorted[idx];
+    }
+};
+
+shuffleBtn.addEventListener("click", () => {
+    const modes = ['random', 'smart', 'weighted'];
+    const currentIdx = modes.indexOf(shuffleMode);
+    shuffleMode = modes[(currentIdx + 1) % modes.length];
+    shuffleBtn.title = `Shuffle: ${shuffleMode}`;
+    isShuffling = true;
+    shuffleBtn.style.color = "#1db954";
+    const next = shuffleModes[shuffleMode]();
+    playTrack(songs.indexOf(next));
+});
+
+// Crossfade
+let crossfadeDuration = 2; // seconds
+let crossfadeEnabled = true;
+
+audio.addEventListener("timeupdate", () => {
+    if (!crossfadeEnabled || !isPlaying || queue.length === 0) return;
+    
+    const remaining = audio.duration - audio.currentTime;
+    if (remaining < crossfadeDuration && remaining > 0) {
+        // Start fading next song
+        const nextTitle = queue[0];
+        const nextIndex = songs.findIndex(s => s.title === nextTitle);
+        if (nextIndex !== -1 && !audio.dataset.nextLoaded) {
+            audio.dataset.nextLoaded = "true";
+            const nextAudio = new Audio(encodeURI(`music/${songs[nextIndex].file}`));
+            nextAudio.volume = 0;
+            nextAudio.play();
+            
+            const fadeInterval = setInterval(() => {
+                if (audio.currentTime >= audio.duration - 0.5 || !isPlaying) {
+                    audio.volume = 1;
+                    nextAudio.volume = 0;
+                    nextAudio.pause();
+                    clearInterval(fadeInterval);
+                } else {
+                    const ratio = (audio.duration - audio.currentTime - crossfadeDuration) / crossfadeDuration;
+                    audio.volume = Math.max(0, Math.min(1, 1 - ratio));
+                    nextAudio.volume = Math.max(0, Math.min(1, ratio));
+                }
+            }, 100);
+        }
+    }
+});
+
+audio.addEventListener("ended", () => {
+    delete audio.dataset.nextLoaded;
+});
+
+// Keyboard Shortcuts
+document.addEventListener("keydown", (e) => {
+    if (app.classList.contains("hidden")) return;
+    
+    switch(e.key) {
+        case " ":
+            e.preventDefault();
+            togglePlay(!isPlaying);
+            break;
+        case "ArrowRight":
+            nextBtn.click();
+            break;
+        case "ArrowLeft":
+            prevBtn.click();
+            break;
+        case "ArrowUp":
+            document.getElementById("volume").value = Math.min(1, parseFloat(document.getElementById("volume").value) + 0.1);
+            audio.volume = document.getElementById("volume").value;
+            break;
+        case "ArrowDown":
+            document.getElementById("volume").value = Math.max(0, parseFloat(document.getElementById("volume").value) - 0.1);
+            audio.volume = document.getElementById("volume").value;
+            break;
+        case "m":
+        case "M":
+            document.getElementById("volume").value = audio.muted ? 0.7 : 0;
+            audio.muted = !audio.muted;
+            break;
+        case "s":
+        case "S":
+            shuffleBtn.click();
+            break;
+        case "l":
+        case "L":
+            loopBtn.click();
+            break;
+        case "q":
+        case "Q":
+            const filtered = getFilteredSongs();
+            const currFilteredIndex = filtered.findIndex(s => songs.indexOf(s) === currentIndex);
+            addToQueue(filtered[currFilteredIndex].title);
+            break;
+    }
+});
+
+// Media Session API for keyboard media keys
+if ('mediaSession' in navigator) {
+    navigator.mediaSession.setActionHandler('play', () => togglePlay(true));
+    navigator.mediaSession.setActionHandler('pause', () => togglePlay(false));
+    navigator.mediaSession.setActionHandler('previoustrack', () => prevBtn.click());
+    navigator.mediaSession.setActionHandler('nexttrack', () => nextBtn.click());
+}

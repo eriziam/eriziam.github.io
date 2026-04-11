@@ -3,7 +3,7 @@ console.log("%cYou are playing TBG by Eryk Kirzanowski", "color:green; text-deco
   This script creates is a very simple game...
 
   Developer : Eryk Kirzanowski
-  Github : @Nobzie
+  Github : @eriziam
 */
 
 // Manage all statistics

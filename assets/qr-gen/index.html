@@ -108,6 +108,68 @@
             font-size: 0.85rem;
             margin-bottom: 1rem;
         }
+        
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .tab { 
+            flex: 1; 
+            padding: 0.5rem; 
+            background: #0d0d14; 
+            border: 1px solid #3a3a50; 
+            border-radius: 6px; 
+            color: #8a8aa0; 
+            cursor: pointer; 
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .tab:hover { border-color: #7c5cfc; }
+        .tab.active { background: #7c5cfc; color: #000; border-color: #7c5cfc; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .color-options { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .color-options label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+        .color-options input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 4px; cursor: pointer; }
+        
+        .bulk-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .bulk-input input {
+            background: #0d0d14;
+            border: 1px solid #3a3a50;
+            border-radius: 6px;
+            padding: 0.5rem;
+            color: #e0e0f0;
+            font-family: inherit;
+        }
+        .bulk-list {
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+        .bulk-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            background: #0d0d14;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        
+        #reader { width: 100%; border-radius: 8px; overflow: hidden; }
+        
+        .logo-options { margin-bottom: 1rem; }
+        .logo-options input[type="file"] { margin-bottom: 0.5rem; }
+        
+        .logo-preview {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -116,25 +178,83 @@
         <h1>📱 QR Code Generator</h1>
     </div>
     <div class="container">
-        <textarea id="text" placeholder="Enter text or URL...">https://eriziam.github.io</textarea>
-        <button class="generate-btn" onclick="generateQR()">Generate QR</button>
-        
-        <div id="qrcode">
-            <span style="color: #666;">QR code will appear here</span>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('generate', event)">Generate</div>
+            <div class="tab" onclick="switchTab('scanner', event)">Scanner</div>
+            <div class="tab" onclick="switchTab('bulk', event)">Bulk</div>
+            <div class="tab" onclick="switchTab('logo', event)">Logo</div>
         </div>
-        <div id="error" class="error"></div>
         
-        <button class="download-btn" onclick="downloadQR()">Download PNG</button>
+        <div id="tab-generate" class="tab-content active">
+            <textarea id="text" placeholder="Enter text or URL...">https://eriziam.github.io</textarea>
+            
+            <div class="color-options">
+                <label>Foreground: <input type="color" id="fg-color" value="#000000"></label>
+                <label>Background: <input type="color" id="bg-color" value="#ffffff"></label>
+            </div>
+            
+            <button class="generate-btn" onclick="generateQR()">Generate QR</button>
+            
+            <div id="qrcode">
+                <span style="color: #666;">QR code will appear here</span>
+            </div>
+            <div id="error" class="error"></div>
+            
+            <button class="download-btn" onclick="downloadQR()">Download PNG</button>
+        </div>
+        
+        <div id="tab-scanner" class="tab-content">
+            <p style="margin-bottom: 1rem; font-size: 0.85rem; color: #8a8aa0;">Use your camera to scan QR codes</p>
+            <div id="reader"></div>
+            <div id="scan-result" style="margin-top: 1rem; padding: 0.75rem; background: #0d0d14; border-radius: 6px; display: none;">
+                <strong style="color: #7c5cfc;">Result:</strong>
+                <span id="scan-result-text"></span>
+            </div>
+            <button class="generate-btn" onclick="startScanner()" style="margin-top: 1rem;">Start Scanner</button>
+            <button class="download-btn" onclick="stopScanner()" style="margin-top: 0.5rem;">Stop Scanner</button>
+        </div>
+        
+        <div id="tab-bulk" class="tab-content">
+            <div class="bulk-input">
+                <textarea id="bulk-text" placeholder="Enter one URL/text per line..."></textarea>
+                <button class="generate-btn" onclick="generateBulk()">Generate All</button>
+            </div>
+            <div id="bulk-results" class="bulk-list"></div>
+        </div>
+        
+        <div id="tab-logo" class="tab-content">
+            <div class="logo-options">
+                <label>Logo Image: <input type="file" id="logo-input" accept="image/*" onchange="loadLogo()"></label>
+            </div>
+            <textarea id="logo-text" placeholder="Enter text or URL...">https://eriziam.github.io</textarea>
+            <button class="generate-btn" onclick="generateLogoQR()">Generate with Logo</button>
+            <div id="logo-qrcode" style="display: flex; justify-content: center; margin: 1rem 0;">
+                <span style="color: #666;">QR with logo will appear here</span>
+            </div>
+            <button class="download-btn" onclick="downloadLogoQR()">Download PNG</button>
+        </div>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script>
         let qrcode = null;
+        let html5QrCode = null;
+        let logoImage = null;
+        
+        function switchTab(tab, e) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
         
         function generateQR() {
             const text = document.getElementById('text').value.trim();
             const container = document.getElementById('qrcode');
             const error = document.getElementById('error');
+            const fgColor = document.getElementById('fg-color').value;
+            const bgColor = document.getElementById('bg-color').value;
             
             if (!text) {
                 error.textContent = 'Please enter some text or a URL';
@@ -148,8 +268,8 @@
                 text: text,
                 width: 200,
                 height: 200,
-                colorDark: '#000000',
-                colorLight: '#ffffff',
+                colorDark: fgColor,
+                colorLight: bgColor,
                 correctLevel: QRCode.CorrectLevel.H
             });
         }
@@ -163,6 +283,152 @@
             
             const link = document.createElement('a');
             link.download = 'qrcode.png';
+            link.href = img.src;
+            link.click();
+        }
+        
+        // Scanner functions
+        function startScanner() {
+            if (html5QrCode) {
+                stopScanner();
+            }
+            
+            html5QrCode = new Html5Qrcode("reader");
+            
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                (decodedText, decodedResult) => {
+                    document.getElementById('scan-result').style.display = 'block';
+                    document.getElementById('scan-result-text').textContent = decodedText;
+                },
+                (errorMessage) => { }
+            ).catch(err => {
+                console.log("Scanner error:", err);
+                alert("Could not start camera. Make sure you have camera permissions.");
+            });
+        }
+        
+        function stopScanner() {
+            if (html5QrCode) {
+                html5QrCode.stop().then(() => {
+                    html5QrCode = null;
+                }).catch(err => console.log(err));
+            }
+        }
+        
+        // Bulk generation
+        function generateBulk() {
+            const text = document.getElementById('bulk-text').value.trim();
+            const lines = text.split('\n').filter(l => l.trim());
+            const results = document.getElementById('bulk-results');
+            results.innerHTML = '';
+            
+            lines.forEach((line, i) => {
+                const div = document.createElement('div');
+                div.className = 'bulk-item';
+                div.innerHTML = `
+                    <span>${line.substring(0, 30)}${line.length > 30 ? '...' : ''}</span>
+                    <button onclick="generateSingleQR('${line.replace(/'/g, "\\'")}', ${i})" style="background:#7c5cfc;border:none;padding:0.25rem 0.5rem;border-radius:4px;cursor:pointer;">Generate</button>
+                    <div id="bulk-qr-${i}" style="display:none;"></div>
+                `;
+                results.appendChild(div);
+            });
+        }
+        
+        function generateSingleQR(text, index) {
+            const container = document.getElementById('bulk-qr-' + index);
+            container.innerHTML = '';
+            container.style.display = 'block';
+            
+            new QRCode(container, {
+                text: text,
+                width: 100,
+                height: 100,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            setTimeout(() => {
+                const img = container.querySelector('img');
+                if (img) {
+                    const link = document.createElement('a');
+                    link.download = `qrcode-${index + 1}.png`;
+                    link.href = img.src;
+                    link.click();
+                }
+            }, 100);
+        }
+        
+        // Logo QR
+        function loadLogo() {
+            const input = document.getElementById('logo-input');
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    logoImage = new Image();
+                    logoImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        function generateLogoQR() {
+            const text = document.getElementById('logo-text').value.trim();
+            const container = document.getElementById('logo-qrcode');
+            
+            if (!text) {
+                alert('Please enter some text');
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            // Generate base QR
+            const qrContainer = document.createElement('div');
+            container.appendChild(qrContainer);
+            
+            qrcode = new QRCode(qrContainer, {
+                text: text,
+                width: 200,
+                height: 200,
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            
+            // Add logo overlay after QR is generated
+            setTimeout(() => {
+                if (logoImage) {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 200;
+                    canvas.height = 200;
+                    const ctx = canvas.getContext('2d');
+                    
+                    const qrImg = qrContainer.querySelector('img');
+                    if (qrImg) {
+                        ctx.drawImage(qrImg, 0, 0, 200, 200);
+                        
+                        // Draw logo in center
+                        const logoSize = 50;
+                        ctx.drawImage(logoImage, 75, 75, logoSize, logoSize);
+                        
+                        qrContainer.innerHTML = '';
+                        const newImg = document.createElement('img');
+                        newImg.src = canvas.toDataURL();
+                        qrContainer.appendChild(newImg);
+                    }
+                }
+            }, 100);
+        }
+        
+        function downloadLogoQR() {
+            const img = document.querySelector('#logo-qrcode img');
+            if (!img) {
+                alert('Generate a QR code first!');
+                return;
+            }
+            
+            const link = document.createElement('a');
+            link.download = 'qrcode-logo.png';
             link.href = img.src;
             link.click();
         }

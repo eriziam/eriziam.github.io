@@ -701,6 +701,15 @@ button { border: none; background: none; cursor: pointer; font-family: inherit; 
     cursor: grab;
 }
 
+.queue-list li.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.queue-list .drag-handle {
+    margin-right: 0.5rem;
+}
+
 /* Player Bar */
 .player-bar {
     position: fixed;

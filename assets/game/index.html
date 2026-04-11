@@ -1,33 +1,1193 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
+<html lang="en">
+<head>
     <meta charset="utf-8">
-    <title>Text-based Game</title>
-    <link rel="stylesheet" href="assets/css/master.css">
-    <script type="text/javascript" src="assets/js/main.js"></script>
-  </head>
-  <body onload="initialize()">
-    <center>
-    <div id="tbg">
-      <div id="stats">
-        <div id="stat">❤ Health<br><p id="hp">X</p></div><div id="stat">🙪 Combat<br><p id="cp">X</p></div><div id="stat">✦ Experience<br><p id="xp">X</p></div><div id="stat">🜲 Gold<br><p id="gp">X</p></div>
-      </div>
-      <hr>
-      <div id="character">
-        <h3>Character</h3>
-        <div class="slot" id="charweapon"></div><div class="slot" id="chararmor"></div><div class="slot" id="charspecial"></div><div class="slot" id="charring"></div>
-      </div>
-      <hr>
-      <div id="inventory">
-        <h3>Inventory</h3>
-        <div class="slot" id="inv0"></div><div class="slot" id="inv1"></div><div class="slot" id="inv2"></div><div class="slot" id="inv3"></div><div class="slot" id="inv4"></div><div class="slot" id="inv5"></div><div class="slot" id="inv6"></div><div class="slot" id="inv7"></div>
-      </div>
-      <hr>
-      <div>
-        <a onclick="explore()">[ Explore ]</a><a onclick="quest()">[ Quest ]</a>
-      </div>
-      <hr>
-      <p id="out">===== Welcome to TBG (text-based game)! =====<br></p>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dungeon Crawler RPG</title>
+    <link rel="icon" href="../../assets/favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0a0a12;
+            --surface: #12121c;
+            --border: #1e1e2e;
+            --text: #d0d0e0;
+            --text-dim: #6a6a8a;
+            --accent: #7c5cfc;
+            --accent-hover: #9585ff;
+            --danger: #ff5555;
+            --success: #55ff55;
+            --gold: #ffdd55;
+            --health: #ff5555;
+            --mana: #5555ff;
+            --xp: #b09fff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            font-family: 'DM Sans', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .header h1 { font-size: 1.5rem; color: var(--accent); margin-bottom: 0.5rem; }
+        .header p { color: var(--text-dim); font-size: 0.9rem; }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr 280px;
+            gap: 1rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        
+        .panel-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        /* Character Stats */
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .stat-label { color: var(--text-dim); font-size: 0.85rem; }
+        .stat-value { font-family: 'Fira Code', monospace; font-size: 0.9rem; }
+        .stat-value.hp { color: var(--health); }
+        .stat-value.xp { color: var(--xp); }
+        .stat-value.gold { color: var(--gold); }
+        
+        /* Skills */
+        .skill-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .skill-name {
+            width: 80px;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        .skill-level {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            width: 40px;
+            text-align: right;
+        }
+        .skill-xp {
+            flex: 1;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .skill-xp-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s;
+        }
+        
+        /* Equipment */
+        .equip-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        .equip-slot {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .equip-slot:hover { border-color: var(--accent); }
+        .equip-slot.filled { border-color: var(--accent); }
+        .equip-slot-label {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+        .equip-slot-item {
+            font-size: 0.75rem;
+            color: var(--gold);
+            margin-top: 0.25rem;
+        }
+        
+        /* Combat */
+        .combat-display {
+            font-family: 'Fira Code', monospace;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+        .combat-display .action { color: var(--text); }
+        .combat-display .damage { color: var(--danger); }
+        .combat-display .heal { color: var(--success); }
+        .combat-display .loot { color: var(--gold); }
+        .combat-display .info { color: var(--text-dim); }
+        .combat-display .enemy { color: var(--danger); font-weight: 600; }
+        .combat-display .player { color: var(--accent); font-weight: 600; }
+        
+        /* Location/Actions */
+        .location-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .action-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .action-btn:hover {
+            background: var(--border);
+            border-color: var(--accent);
+        }
+        .action-btn.combat { border-color: var(--danger); color: var(--danger); }
+        .action-btn.combat:hover { background: rgba(255,85,85,0.1); }
+        
+        .location-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .loc-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 0.4rem 0.8rem;
+            color: var(--text-dim);
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+        .loc-btn:hover, .loc-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        /* Inventory */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .inv-slot {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            text-align: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            min-height: 40px;
+        }
+        .inv-slot:hover { border-color: var(--accent); }
+        .inv-slot.usable { border-color: var(--success); }
+        .inv-slot.equip { border-color: var(--gold); }
+        
+        .inv-count {
+            font-size: 0.65rem;
+            color: var(--text-dim);
+        }
+        
+        /* Shop */
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+        
+        .shop-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem;
+            text-align: center;
+        }
+        .shop-item-name {
+            font-size: 0.8rem;
+            color: var(--gold);
+        }
+        .shop-item-price {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        .shop-item-btn {
+            background: var(--border);
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.5rem;
+            color: var(--text);
+            font-size: 0.7rem;
+            cursor: pointer;
+            margin-top: 0.25rem;
+        }
+        .shop-item-btn:hover { background: var(--accent); }
+        
+        /* Enemy Display */
+        .enemy-info {
+            background: rgba(255,85,85,0.1);
+            border: 1px solid var(--danger);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        .enemy-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--danger);
+        }
+        .enemy-stats {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        .enemy-hp-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+        .enemy-hp-fill {
+            height: 100%;
+            background: var(--danger);
+            transition: width 0.3s;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .tab-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            color: var(--text-dim);
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+        .tab-btn:hover, .tab-btn.active {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../../index.html">← Back to Site</a>
+        <h1>⚔️ Dungeon Crawler RPG</h1>
+        <p>A roguelike adventure with skills, combat, and loot</p>
     </div>
-  </body>
+    
+    <div class="container">
+        <!-- Left Panel: Stats & Equipment -->
+        <div class="panel">
+            <div class="panel-title">Character</div>
+            <div class="stat-row">
+                <span class="stat-label">Name</span>
+                <span class="stat-value">Adventurer</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Health</span>
+                <span class="stat-value hp" id="hp">100/100</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Attack</span>
+                <span class="stat-value" id="atk">10</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Defense</span>
+                <span class="stat-value" id="def">5</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Gold</span>
+                <span class="stat-value gold" id="gold">0</span>
+            </div>
+            
+            <div class="panel-title" style="margin-top: 1rem;">Skills</div>
+            <div class="skill-bar">
+                <span class="skill-name">Attack</span>
+                <span class="skill-level" id="skill-atk">1</span>
+                <div class="skill-xp"><div class="skill-xp-fill" id="xp-atk" style="width: 0%"></div></div>
+            </div>
+            <div class="skill-bar">
+                <span class="skill-name">Strength</span>
+                <span class="skill-level" id="skill-str">1</span>
+                <div class="skill-xp"><div class="skill-xp-fill" id="xp-str" style="width: 0%"></div></div>
+            </div>
+            <div class="skill-bar">
+                <span class="skill-name">Defense</span>
+                <span class="skill-level" id="skill-def">1</span>
+                <div class="skill-xp"><div class="skill-xp-fill" id="xp-def" style="width: 0%"></div></div>
+            </div>
+            <div class="skill-bar">
+                <span class="skill-name">Hitpoints</span>
+                <span class="skill-level" id="skill-hp">10</span>
+                <div class="skill-xp"><div class="skill-xp-fill" id="xp-hp" style="width: 0%"></div></div>
+            </div>
+            
+            <div class="panel-title" style="margin-top: 1rem;">Equipment</div>
+            <div class="equip-grid">
+                <div class="equip-slot" id="equip-weapon" onclick="unequip('weapon')">
+                    <div class="equip-slot-label">Weapon</div>
+                    <div class="equip-slot-item">-</div>
+                </div>
+                <div class="equip-slot" id="equip-armor" onclick="unequip('armor')">
+                    <div class="equip-slot-label">Armor</div>
+                    <div class="equip-slot-item">-</div>
+                </div>
+                <div class="equip-slot" id="equip-helmet" onclick="unequip('helmet')">
+                    <div class="equip-slot-label">Helmet</div>
+                    <div class="equip-slot-item">-</div>
+                </div>
+                <div class="equip-slot" id="equip-boots" onclick="unequip('boots')">
+                    <div class="equip-slot-label">Boots</div>
+                    <div class="equip-slot-item">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Middle Panel: Main Game -->
+        <div class="panel">
+            <div class="panel-title">Current Location: <span id="location">Training Grounds</span></div>
+            
+            <div id="enemy-panel" class="enemy-info" style="display: none;">
+                <div class="enemy-name" id="enemy-name">Goblin</div>
+                <div class="enemy-stats">Level <span id="enemy-lvl">3</span> | HP: <span id="enemy-hp">30</span>/<span id="enemy-max-hp">30</span></div>
+                <div class="enemy-hp-bar"><div class="enemy-hp-fill" id="enemy-hp-bar" style="width: 100%"></div></div>
+                <div style="margin-top: 0.5rem;">
+                    <button class="action-btn combat" onclick="attack()">⚔️ Attack</button>
+                    <button class="action-btn" onclick="flee()">🏃 Flee</button>
+                </div>
+            </div>
+            
+            <div class="action-grid">
+                <button class="action-btn" onclick="explore()">🔍 Explore</button>
+                <button class="action-btn" onclick="rest()">💤 Rest (Heal)</button>
+                <button class="action-btn" onclick="openShop()">🏪 Shop</button>
+                <button class="action-btn" onclick="checkInventory()">🎒 Inventory</button>
+                <button class="action-btn" onclick="showQuests()">📜 Quests</button>
+                <button class="action-btn" onclick="showCrafting()">🔨 Craft</button>
+                <button class="action-btn" onclick="showMap()">🗺️ Map</button>
+                <button class="action-btn" onclick="showAchievements()">🏆 Achievements</button>
+            </div>
+            
+            <div class="panel-title">Dungeons</div>
+            <div class="location-list">
+                <button class="loc-btn active" onclick="travel('training')">Training Grounds</button>
+                <button class="loc-btn" onclick="travel('forest')">Dark Forest</button>
+                <button class="loc-btn" onclick="travel('cave')">Goblin Cave</button>
+                <button class="loc-btn" onclick="travel('dungeon')">Deep Dungeon</button>
+                <button class="loc-btn" onclick="travel('dragon')">Dragon's Lair</button>
+            </div>
+            
+            <div class="panel-title" style="margin-top: 1rem;">Adventure Log</div>
+            <div class="combat-display" id="combat-log">
+                <span class="info">=== Welcome to Dungeon Crawler RPG ===</span><br>
+                <span class="info">Use Explore to find enemies, rest to heal,</span><br>
+                <span class="info">and visit shops to buy equipment.</span><br>
+                <span class="info">Gain XP to level up your skills!</span><br>
+            </div>
+        </div>
+        
+        <!-- Right Panel: Inventory -->
+        <div class="panel">
+            <div class="panel-title">
+                <span>Inventory (<span id="inv-count">0</span>/20)</span>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                    <button class="action-btn" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="saveGame()">💾 Save</button>
+                    <button class="action-btn" style="padding: 0.25rem 0.5rem; font-size: 0.7rem;" onclick="loadGame()">📂 Load</button>
+                </div>
+            </div>
+            <div class="inventory-grid" id="inventory"></div>
+            
+            <div class="panel-title" style="margin-top: 1rem;">Stats Summary</div>
+            <div class="stat-row">
+                <span class="stat-label">Total XP</span>
+                <span class="stat-value xp" id="total-xp">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Kills</span>
+                <span class="stat-value" id="kills">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Deaths</span>
+                <span class="stat-value" id="deaths">0</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Shop Modal -->
+    <div id="shop-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100;">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; max-width: 400px; width: 90%;">
+            <h2 style="color: var(--gold); margin-bottom: 1rem;">🛒 Shop</h2>
+            <div class="shop-grid" id="shop-items"></div>
+            <button class="action-btn" style="width: 100%; margin-top: 1rem;" onclick="closeShop()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        // Player State
+        let player = {
+            hp: 100,
+            maxHp: 100,
+            atk: 10,
+            def: 5,
+            gold: 50,
+            xp: { atk: 0, str: 0, def: 0, hp: 0 },
+            skills: { atk: 1, str: 1, def: 1, hp: 10 },
+            inventory: [],
+            equipment: { weapon: null, armor: null, helmet: null, boots: null },
+            kills: 0,
+            deaths: 0
+        };
+        
+        const maxInv = 20;
+        const maxXp = 100; // XP needed per level
+        
+        // Locations
+        const locations = {
+            training: { name: 'Training Grounds', minLvl: 1, maxLvl: 2, enemyRate: 0.3 },
+            forest: { name: 'Dark Forest', minLvl: 3, maxLvl: 5, enemyRate: 0.5 },
+            cave: { name: 'Goblin Cave', minLvl: 5, maxLvl: 8, enemyRate: 0.7 },
+            dungeon: { name: 'Deep Dungeon', minLvl: 8, maxLvl: 15, enemyRate: 0.9 },
+            dragon: { name: "Dragon's Lair", minLvl: 20, maxLvl: 30, enemyRate: 1.0 }
+        };
+        
+        let currentLocation = 'training';
+        let currentEnemy = null;
+        
+        // Items Database
+        const items = {
+            // Weapons
+            stick: { name: 'Stick', type: 'weapon', atk: 2, value: 5 },
+            dagger: { name: 'Dagger', type: 'weapon', atk: 5, value: 25 },
+            sword: { name: 'Iron Sword', type: 'weapon', atk: 10, value: 100 },
+            longsword: { name: 'Steel Longsword', type: 'weapon', atk: 18, value: 500 },
+            golden: { name: 'Golden Blade', type: 'weapon', atk: 35, value: 2500 },
+            // Armor
+            leather: { name: 'Leather Armor', type: 'armor', def: 3, value: 30 },
+            chainmail: { name: 'Chainmail', type: 'armor', def: 8, value: 150 },
+            platemail: { name: 'Plate Mail', type: 'armor', def: 15, value: 750 },
+            dragon: { name: 'Dragon Scale', type: 'armor', def: 25, value: 3000 },
+            // Helmets
+            cap: { name: 'Leather Cap', type: 'helmet', def: 1, value: 15 },
+            helm: { name: 'Iron Helmet', type: 'helmet', def: 4, value: 80 },
+            great helm: { name: 'Great Helm', type: 'helmet', def: 8, value: 400 },
+            // Boots
+            sandals: { name: 'Sandals', type: 'boots', def: 0, value: 5 },
+            boots: { name: 'Leather Boots', type: 'boots', def: 2, value: 25 },
+            ironboots: { name: 'Iron Boots', type: 'boots', def: 5, value: 120 },
+            // Consumables
+            apple: { name: 'Apple', type: 'usable', heal: 10, value: 3 },
+            bread: { name: 'Bread', type: 'usable', heal: 25, value: 8 },
+            potion: { name: 'Health Potion', type: 'usable', heal: 50, value: 25 },
+            superpotion: { name: 'Super Potion', type: 'usable', heal: 100, value: 75 }
+        };
+        
+const shopItems = ['dagger', 'sword', 'leather', 'chainmail', 'cap', 'helm', 'boots', 'ironboots', 'apple', 'bread', 'potion', 'iron'];
+        
+        // Items (add iron for crafting)
+        const items = {
+            // Weapons
+            stick: { name: 'Stick', type: 'weapon', atk: 2, value: 5 },
+            dagger: { name: 'Dagger', type: 'weapon', atk: 5, value: 25 },
+            sword: { name: 'Iron Sword', type: 'weapon', atk: 10, value: 100 },
+            longsword: { name: 'Steel Longsword', type: 'weapon', atk: 18, value: 500 },
+            golden: { name: 'Golden Blade', type: 'weapon', atk: 35, value: 2500 },
+            steel_sword: { name: 'Steel Sword', type: 'weapon', atk: 15, value: 200 },
+            // Armor
+            leather: { name: 'Leather Armor', type: 'armor', def: 3, value: 30 },
+            chainmail: { name: 'Chainmail', type: 'armor', def: 8, value: 150 },
+            platemail: { name: 'Plate Mail', type: 'armor', def: 15, value: 750 },
+            dragon: { name: 'Dragon Scale', type: 'armor', def: 25, value: 3000 },
+            reinforced_armor: { name: 'Reinforced Armor', type: 'armor', def: 12, value: 250 },
+            // Helmets
+            cap: { name: 'Leather Cap', type: 'helmet', def: 1, value: 15 },
+            helm: { name: 'Iron Helmet', type: 'helmet', def: 4, value: 80 },
+            great_helm: { name: 'Great Helm', type: 'helmet', def: 8, value: 400 },
+            // Boots
+            sandals: { name: 'Sandals', type: 'boots', def: 0, value: 5 },
+            boots: { name: 'Leather Boots', type: 'boots', def: 2, value: 25 },
+            ironboots: { name: 'Iron Boots', type: 'boots', def: 5, value: 120 },
+            // Consumables
+            apple: { name: 'Apple', type: 'usable', heal: 10, value: 3 },
+            bread: { name: 'Bread', type: 'usable', heal: 25, value: 8 },
+            potion: { name: 'Health Potion', type: 'usable', heal: 50, value: 25 },
+            superpotion: { name: 'Super Potion', type: 'usable', heal: 100, value: 75 },
+            healing_potion: { name: 'Healing Potion', type: 'usable', heal: 75, value: 40 },
+            // Crafting Materials
+            iron: { name: 'Iron Ore', type: 'material', value: 10 }
+        };
+        
+        // Location enemy pools
+        const locationEnemies = {
+            training: ['rat', 'bat'],
+            forest: ['wolf', 'spider', 'goblin'],
+            cave: ['goblin', 'goblin_shaman', 'spider'],
+            dungeon: ['skeleton', 'skeleton_knight', 'zombie', 'orc'],
+            dragon: ['orc', 'troll', 'demon', 'dragon']
+        };
+        
+        function log(msg, type = 'info') {
+            const logEl = document.getElementById('combat-log');
+            logEl.innerHTML += `<span class="${type}">${msg}</span><br>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+        
+        function updateUI() {
+            document.getElementById('hp').textContent = `${player.hp}/${player.maxHp}`;
+            document.getElementById('atk').textContent = player.atk;
+            document.getElementById('def').textContent = player.def;
+            document.getElementById('gold').textContent = player.gold;
+            
+            // Skills
+            ['atk', 'str', 'def', 'hp'].forEach(skill => {
+                document.getElementById(`skill-${skill}`).textContent = player.skills[skill];
+                const xp = player.xp[skill];
+                const pct = (xp / maxXp) * 100;
+                document.getElementById(`xp-${skill}`).style.width = `${pct}%`;
+            });
+            
+            // Equipment
+            ['weapon', 'armor', 'helmet', 'boots'].forEach(slot => {
+                const el = document.getElementById(`equip-${slot}`);
+                const item = player.equipment[slot];
+                if (item) {
+                    el.classList.add('filled');
+                    el.querySelector('.equip-slot-item').textContent = items[item].name;
+                } else {
+                    el.classList.remove('filled');
+                    el.querySelector('.equip-slot-item').textContent = '-';
+                }
+            });
+            
+            // Inventory
+            const invEl = document.getElementById('inventory');
+            invEl.innerHTML = '';
+            for (let i = 0; i < maxInv; i++) {
+                const slot = document.createElement('div');
+                slot.className = 'inv-slot';
+                if (player.inventory[i]) {
+                    const item = items[player.inventory[i]];
+                    slot.classList.add(item.type === 'usable' ? 'usable' : (item.type !== 'consumable' ? 'equip' : ''));
+                    slot.innerHTML = item.name;
+                    slot.onclick = () => useItem(i);
+                }
+                invEl.appendChild(slot);
+            }
+            document.getElementById('inv-count').textContent = player.inventory.length;
+            
+            // Stats
+            const totalXp = Object.values(player.xp).reduce((a, b) => a + b, 0);
+            document.getElementById('total-xp').textContent = totalXp;
+            document.getElementById('kills').textContent = player.kills;
+            document.getElementById('deaths').textContent = player.deaths;
+        }
+        
+        function travel(loc) {
+            currentLocation = loc;
+            currentEnemy = null;
+            document.getElementById('location').textContent = locations[loc].name;
+            document.getElementById('enemy-panel').style.display = 'none';
+            log(`=== Traveled to ${locations[loc].name} ===`, 'info');
+            
+            document.querySelectorAll('.loc-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent === locations[loc].name) btn.classList.add('active');
+            });
+        }
+        
+        function explore() {
+            const loc = locations[currentLocation];
+            if (Math.random() < loc.enemyRate) {
+                const lvlRange = loc.maxLvl - loc.minLvl + 1;
+                const enemyLvl = Math.floor(Math.random() * lvlRange) + loc.minLvl;
+                spawnEnemy(enemyLvl);
+            } else {
+                const foundGold = Math.floor(Math.random() * 10) + 5;
+                player.gold += foundGold;
+                log(`Found ${foundGold} gold on the ground!`, 'loot');
+                updateUI();
+            }
+        }
+        
+        function spawnEnemy(lvl) {
+            // Use location-based enemy pools
+            const pool = locationEnemies[currentLocation] || Object.keys(enemies);
+            let validEnemies = pool.filter(k => enemies[k].lvl <= lvl + 2 && enemies[k].lvl >= Math.max(1, lvl - 2));
+            if (validEnemies.length === 0) validEnemies = pool;
+            
+            const key = validEnemies[Math.floor(Math.random() * validEnemies.length)];
+            const template = enemies[key];
+            
+            currentEnemy = {
+                key: key,
+                name: template.name,
+                lvl: template.lvl,
+                hp: template.hp + Math.floor(lvl * 2),
+                maxHp: template.hp + Math.floor(lvl * 2),
+                atk: template.atk + Math.floor(lvl * 0.5),
+                def: template.def + Math.floor(lvl * 0.3),
+                xp: template.xp + lvl * 5,
+                gold: template.gold + lvl * 3,
+                drops: template.drops
+            };
+            
+            document.getElementById('enemy-panel').style.display = 'block';
+            updateEnemyUI();
+            log(`A <span class="enemy">${currentEnemy.name} (Lvl ${currentEnemy.lvl})</span> appears!`, 'enemy');
+        }
+        
+        function updateEnemyUI() {
+            document.getElementById('enemy-name').textContent = currentEnemy.name;
+            document.getElementById('enemy-lvl').textContent = currentEnemy.lvl;
+            document.getElementById('enemy-hp').textContent = currentEnemy.hp;
+            document.getElementById('enemy-max-hp').textContent = currentEnemy.maxHp;
+            const pct = (currentEnemy.hp / currentEnemy.maxHp) * 100;
+            document.getElementById('enemy-hp-bar').style.width = `${pct}%`;
+        }
+        
+        function attack() {
+            if (!currentEnemy) return;
+            
+            // Player attacks
+            const playerDmg = Math.max(1, player.atk + Math.floor(Math.random() * 5) - currentEnemy.def);
+            currentEnemy.hp -= playerDmg;
+            log(`You hit ${currentEnemy.name} for <span class="damage">${playerDmg} damage</span>!`, 'action');
+            
+            // Check enemy death
+            if (currentEnemy.hp <= 0) {
+                killEnemy();
+                return;
+            }
+            
+            // Enemy attacks
+            const enemyDmg = Math.max(1, currentEnemy.atk + Math.floor(Math.random() * 3) - player.def);
+            player.hp -= enemyDmg;
+            log(`${currentEnemy.name} hits you for <span class="damage">${enemyDmg} damage</span>!`, 'enemy');
+            
+            if (player.hp <= 0) {
+                player.deaths++;
+                player.hp = 1;
+                log(`<span class="damage">You died! Respawning...</span>`, 'damage');
+                currentEnemy = null;
+                document.getElementById('enemy-panel').style.display = 'none';
+            }
+            
+            updateEnemyUI();
+            updateUI();
+        }
+        
+        function killEnemy() {
+            const xpGain = currentEnemy.xp;
+            const goldGain = currentEnemy.gold;
+            
+            player.xp.atk += Math.floor(xpGain * 0.4);
+            player.xp.str += Math.floor(xpGain * 0.3);
+            player.xp.def += Math.floor(xpGain * 0.2);
+            player.xp.hp += Math.floor(xpGain * 0.1);
+            
+            // Check level ups
+            ['atk', 'str', 'def', 'hp'].forEach(skill => {
+                while (player.xp[skill] >= maxXp) {
+                    player.xp[skill] -= maxXp;
+                    player.skills[skill]++;
+                    log(`<span class="success">${skill.toUpperCase()} increased to level ${player.skills[skill]}!</span>`, 'success');
+                }
+            });
+            
+            // Update stats based on skills
+            player.atk = 5 + player.skills.atk * 2 + player.skills.str + (player.equipment.weapon ? items[player.equipment.weapon].atk : 0);
+            player.def = 3 + player.skills.def + (player.equipment.armor ? items[player.equipment.armor].def : 0) + (player.equipment.helmet ? items[player.equipment.helmet].def : 0) + (player.equipment.boots ? items[player.equipment.boots].def : 0);
+            player.maxHp = 50 + player.skills.hp * 5;
+            if (player.hp > player.maxHp) player.hp = player.maxHp;
+            
+            player.gold += goldGain;
+            player.kills++;
+            
+            log(`<span class="success">Defeated ${currentEnemy.name}!</span> Gained ${xpGain} XP and ${goldGain} gold!`, 'loot');
+            
+            // Drop loot
+            currentEnemy.drops.forEach(dropKey => {
+                if (Math.random() < 0.3) {
+                    addToInventory(dropKey);
+                    log(`<span class="loot">Found: ${items[dropKey].name}</span>`, 'loot');
+                }
+            });
+            
+            currentEnemy = null;
+            document.getElementById('enemy-panel').style.display = 'none';
+            checkAchievements();
+            updateQuestProgress();
+            updateUI();
+        }
+        
+        function flee() {
+            if (!currentEnemy) return;
+            if (Math.random() < 0.5) {
+                log(`<span class="info">Successfully fled from combat!</span>`, 'info');
+                currentEnemy = null;
+                document.getElementById('enemy-panel').style.display = 'none';
+            } else {
+                log(`<span class="damage">Failed to flee!</span>`, 'damage');
+                const enemyDmg = Math.max(1, currentEnemy.atk - player.def);
+                player.hp -= enemyDmg;
+                log(`${currentEnemy.name} hits you for <span class="damage">${enemyDmg} damage</span> while you flee!`, 'enemy');
+                updateEnemyUI();
+                updateUI();
+                
+                if (player.hp <= 0) {
+                    player.deaths++;
+                    player.hp = 1;
+                    log(`<span class="damage">You died while fleeing!</span>`, 'damage');
+                    currentEnemy = null;
+                    document.getElementById('enemy-panel').style.display = 'none';
+                }
+            }
+        }
+        
+        function rest() {
+            const heal = Math.floor(player.maxHp * 0.5);
+            player.hp = Math.min(player.maxHp, player.hp + heal);
+            log(`<span class="heal">You rest and recover ${heal} HP!</span>`, 'heal');
+            updateUI();
+        }
+        
+        function addToInventory(itemKey) {
+            if (player.inventory.length >= maxInv) {
+                log(`<span class="damage">Inventory full!</span>`, 'damage');
+                return false;
+            }
+            player.inventory.push(itemKey);
+            return true;
+        }
+        
+        function useItem(slot) {
+            const itemKey = player.inventory[slot];
+            if (!itemKey) return;
+            
+            const item = items[itemKey];
+            
+            if (item.type === 'usable') {
+                player.hp = Math.min(player.maxHp, player.hp + item.heal);
+                log(`<span class="heal">Used ${item.name}, restored ${item.heal} HP!</span>`, 'heal');
+                player.inventory.splice(slot, 1);
+            } else if (item.type.startsWith('weapon') || item.type === 'armor' || item.type === 'helmet' || item.type === 'boots') {
+                equip(itemKey, slot);
+            }
+            
+            updateUI();
+        }
+        
+        function equip(itemKey, fromSlot) {
+            const item = items[itemKey];
+            const slot = item.type;
+            
+            // Unequip current
+            if (player.equipment[slot]) {
+                addToInventory(player.equipment[slot]);
+            }
+            
+            player.equipment[slot] = itemKey;
+            
+            if (fromSlot !== undefined) {
+                player.inventory.splice(fromSlot, 1);
+            }
+            
+            // Recalculate stats
+            player.atk = 5 + player.skills.atk * 2 + player.skills.str + (player.equipment.weapon ? items[player.equipment.weapon].atk : 0);
+            player.def = 3 + player.skills.def + (player.equipment.armor ? items[player.equipment.armor].def : 0) + (player.equipment.helmet ? items[player.equipment.helmet].def : 0) + (player.equipment.boots ? items[player.equipment.boots].def : 0);
+            
+            log(`<span class="success">Equipped ${item.name}!</span>`, 'action');
+            updateUI();
+        }
+        
+        function unequip(slot) {
+            if (player.equipment[slot]) {
+                if (addToInventory(player.equipment[slot])) {
+                    log(`Unequipped ${items[player.equipment[slot]].name}`, 'info');
+                    player.equipment[slot] = null;
+                    
+                    player.atk = 5 + player.skills.atk * 2 + player.skills.str + (player.equipment.weapon ? items[player.equipment.weapon].atk : 0);
+                    player.def = 3 + player.skills.def + (player.equipment.armor ? items[player.equipment.armor].def : 0) + (player.equipment.helmet ? items[player.equipment.helmet].def : 0) + (player.equipment.boots ? items[player.equipment.boots].def : 0);
+                    
+                    updateUI();
+                }
+            }
+        }
+        
+        function openShop() {
+            const shopEl = document.getElementById('shop-items');
+            shopEl.innerHTML = '';
+            
+            shopItems.forEach(itemKey => {
+                const item = items[itemKey];
+                const div = document.createElement('div');
+                div.className = 'shop-item';
+                div.innerHTML = `
+                    <div class="shop-item-name">${item.name}</div>
+                    <div class="shop-item-price">${item.value} gold</div>
+                    <button class="shop-item-btn" onclick="buyItem('${itemKey}')">Buy</button>
+                `;
+                shopEl.appendChild(div);
+            });
+            
+            document.getElementById('shop-modal').style.display = 'block';
+        }
+        
+        function closeShop() {
+            document.getElementById('shop-modal').style.display = 'none';
+        }
+        
+        function buyItem(itemKey) {
+            const item = items[itemKey];
+            if (player.gold >= item.value) {
+                if (addToInventory(itemKey)) {
+                    player.gold -= item.value;
+                    log(`Bought ${item.name} for ${item.value} gold`, 'loot');
+                    updateUI();
+                }
+            } else {
+                log(`<span class="damage">Not enough gold!</span>`, 'damage');
+            }
+        }
+        
+        function checkInventory() {
+            log(`Inventory: ${player.inventory.map(k => items[k].name).join(', ') || 'Empty'}`, 'info');
+        }
+        
+        // Achievements System
+        let achievements = [];
+        const achievementList = [
+            { id: 'first_kill', name: 'First Blood', desc: 'Defeat your first enemy', icon: '🗡️' },
+            { id: 'ten_kills', name: 'Monster Hunter', desc: 'Defeat 10 enemies', icon: '⚔️' },
+            { id: 'fifty_kills', name: 'Slayer', desc: 'Defeat 50 enemies', icon: '💀' },
+            { id: 'dragon_slayer', name: 'Dragon Slayer', desc: 'Defeat the Ancient Dragon', icon: '🐉' },
+            { id: 'rich', name: 'Wealthy', desc: 'Accumulate 500 gold', icon: '💰' },
+            { id: 'master', name: 'Skill Master', desc: 'Reach level 10 in any skill', icon: '⭐' },
+            { id: 'explorer', name: 'Explorer', desc: 'Visit all locations', icon: '🗺️' },
+            { id: 'death', name: 'Near Death', desc: 'Die for the first time', icon: '💀' }
+        ];
+        
+        function checkAchievements() {
+            achievementList.forEach(ach => {
+                if (achievements.includes(ach.id)) return;
+                
+                let unlocked = false;
+                if (ach.id === 'first_kill' && player.kills >= 1) unlocked = true;
+                if (ach.id === 'ten_kills' && player.kills >= 10) unlocked = true;
+                if (ach.id === 'fifty_kills' && player.kills >= 50) unlocked = true;
+                if (ach.id === 'dragon_slayer' && player.kills > 0) {
+                    if (currentLocation === 'dragon') unlocked = true;
+                }
+                if (ach.id === 'rich' && player.gold >= 500) unlocked = true;
+                if (ach.id === 'master' && Object.values(player.skills).some(s => s >= 10)) unlocked = true;
+                if (ach.id === 'explorer') {
+                    const visited = new Set(Object.keys(questProgress).filter(k => k.startsWith('visited_')));
+                    if (visited.size >= 5) unlocked = true;
+                }
+                if (ach.id === 'death' && player.deaths >= 1) unlocked = true;
+                
+                if (unlocked) {
+                    achievements.push(ach.id);
+                    log(`<span class="loot">🏆 Achievement Unlocked: ${ach.name}!</span>`, 'loot');
+                }
+            });
+        }
+        
+        // Quest System
+        let activeQuest = null;
+        let questProgress = {};
+        
+        const quests = [
+            { id: 'slayer', name: 'Pest Control', desc: 'Defeat 5 enemies', target: 5, type: 'kills' },
+            { id: 'collector', name: 'Treasure Hunter', desc: 'Find 100 gold', target: 100, type: 'gold' },
+            { id: 'explorer', name: 'Dungeon Explorer', desc: 'Visit all locations', target: 5, type: 'locations' }
+        ];
+        
+        function showQuests() {
+            log(`=== QUESTS ===`, 'info');
+            quests.forEach(q => {
+                const progress = questProgress[q.id] || 0;
+                const status = activeQuest === q.id ? ' [ACTIVE]' : '';
+                log(`${q.name}${status}: ${q.desc} (${progress}/${q.target})`, 'info');
+            });
+            log(`Type acceptQuest(id) to take a quest`, 'info');
+        }
+        
+        window.acceptQuest = function(qId) {
+            const quest = quests.find(q => q.id === qId);
+            if (!quest) return;
+            activeQuest = qId;
+            questProgress[qId] = questProgress[qId] || 0;
+            log(`<span class="success">Quest accepted: ${quest.name}!</span>`, 'success');
+        }
+        
+        function updateQuestProgress() {
+            if (!activeQuest) return;
+            const quest = quests.find(q => q.id === activeQuest);
+            if (!quest) return;
+            
+            if (quest.type === 'kills') {
+                questProgress[activeQuest] = player.kills;
+            } else if (quest.type === 'gold') {
+                questProgress[activeQuest] = player.gold;
+            }
+            
+            if (questProgress[activeQuest] >= quest.target) {
+                log(`<span class="success">🎯 Quest Complete: ${quest.name}!</span>`, 'loot');
+                activeQuest = null;
+            }
+        }
+        
+        // Save/Load System
+        const SAVE_KEY = 'dungeon_crawler_save';
+        
+        function saveGame() {
+            const saveData = {
+                player: player,
+                currentLocation: currentLocation,
+                achievements: achievements,
+                activeQuest: activeQuest,
+                questProgress: questProgress
+            };
+            localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+            log(`<span class="success">Game saved!</span>`, 'success');
+        }
+        
+        function loadGame() {
+            const saved = localStorage.getItem(SAVE_KEY);
+            if (saved) {
+                const data = JSON.parse(saved);
+                player = data.player;
+                currentLocation = data.currentLocation || 'training';
+                achievements = data.achievements || [];
+                activeQuest = data.activeQuest || null;
+                questProgress = data.questProgress || {};
+                travel(currentLocation);
+                updateUI();
+                log(`<span class="success">Game loaded!</span>`, 'success');
+            } else {
+                log(`<span class="damage">No save found!</span>`, 'damage');
+            }
+        }
+        
+        // Crafting System
+        const craftingRecipes = {
+            'steel_sword': { name: 'Steel Sword', type: 'weapon', atk: 15, materials: { sword: 1, iron: 2 } },
+            'reinforced_armor': { name: 'Reinforced Armor', type: 'armor', def: 12, materials: { leather: 2, iron: 2 } },
+            'healing_potion': { name: 'Healing Potion', type: 'usable', heal: 75, materials: { bread: 2, apple: 1 } }
+        };
+        
+        function showCrafting() {
+            log(`=== CRAFTING RECIPES ===`, 'info');
+            Object.entries(craftingRecipes).forEach(([id, recipe]) => {
+                const mats = Object.entries(recipe.materials).map(([k, v]) => `${v} ${k}`).join(', ');
+                log(`${recipe.name}: ${mats}`, 'info');
+            });
+            log(`Type craft(itemId) to craft`, 'info');
+        }
+        
+        window.craft = function(itemId) {
+            const recipe = craftingRecipes[itemId];
+            if (!recipe) {
+                log(`<span class="damage">Unknown recipe!</span>`, 'damage');
+                return;
+            }
+            
+            // Check materials
+            const materialCounts = {};
+            player.inventory.forEach(item => {
+                materialCounts[item] = (materialCounts[item] || 0) + 1;
+            });
+            
+            for (const [mat, needed] of Object.entries(recipe.materials)) {
+                if ((materialCounts[mat] || 0) < needed) {
+                    log(`<span class="damage">Missing materials!</span>`, 'damage');
+                    return;
+                }
+            }
+            
+            // Consume materials
+            for (const [mat, needed] of Object.entries(recipe.materials)) {
+                for (let i = 0; i < needed; i++) {
+                    const idx = player.inventory.indexOf(mat);
+                    if (idx > -1) player.inventory.splice(idx, 1);
+                }
+            }
+            
+            // Add crafted item
+            addToInventory(itemId);
+            log(`<span class="success">Crafted ${recipe.name}!</span>`, 'success');
+            updateUI();
+        }
+        
+        // Map System
+        function showMap() {
+            log(`=== DUNGEON MAP ===`, 'info');
+            Object.entries(locations).forEach(([key, loc]) => {
+                const visited = questProgress[`visited_${key}`] ? '✅' : '🔒';
+                log(`${visited} ${loc.name} (Lvl ${loc.minLvl}-${loc.maxLvl})`, 'info');
+            });
+        }
+        
+        // Track location visits
+        const originalTravel = travel;
+        travel = function(loc) {
+            originalTravel(loc);
+            questProgress[`visited_${loc}`] = true;
+        };
+        
+        // Achievements display
+        function showAchievements() {
+            log(`=== ACHIEVEMENTS (${achievements.length}/${achievementList.length}) ===`, 'info');
+            achievementList.forEach(ach => {
+                const unlocked = achievements.includes(ach.id);
+                const status = unlocked ? '🏆' : '🔒';
+                log(`${status} ${ach.name}: ${ach.desc}`, 'info');
+            });
+        }
+        
+        function checkAchievements() {
+            achievementList.forEach(ach => {
+                if (achievements.includes(ach.id)) return;
+                
+                let unlocked = false;
+                if (ach.id === 'first_kill' && player.kills >= 1) unlocked = true;
+                if (ach.id === 'ten_kills' && player.kills >= 10) unlocked = true;
+                if (ach.id === 'fifty_kills' && player.kills >= 50) unlocked = true;
+                if (ach.id === 'dragon_slayer' && player.kills > 0) {
+                    // Check if player defeated dragon (in Dragon's Lair)
+                    if (currentLocation === 'dragon') unlocked = true;
+                }
+                if (ach.id === 'rich' && player.gold >= 500) unlocked = true;
+                if (ach.id === 'master' && Object.values(player.skills).some(s => s >= 10)) unlocked = true;
+                if (ach.id === 'explorer') {
+                    const visited = new Set(Object.keys(questProgress).filter(k => k.startsWith('visited_')));
+                    if (visited.size >= 5) unlocked = true;
+                }
+                if (ach.id === 'death' && player.deaths >= 1) unlocked = true;
+                
+                if (unlocked) {
+                    achievements.push(ach.id);
+                    log(`<span class="loot">🏆 Achievement Unlocked: ${ach.name}!</span>`, 'loot');
+                }
+            });
+        }
+        
+        // Quest System
+        let activeQuest = null;
+        let questProgress = {};
+        
+        const quests = [
+            { id: 'slayer', name: 'Pest Control', desc: 'Defeat 5 enemies', target: 5, type: 'kills' },
+            { id: 'collector', name: 'Treasure Hunter', desc: 'Find 100 gold', target: 100, type: 'gold' },
+            { id: 'explorer', name: 'Dungeon Explorer', desc: 'Visit all locations', target: 5, type: 'locations' }
+        ];
+        
+        function showQuests() {
+            log(`=== QUESTS ===`, 'info');
+            quests.forEach(q => {
+                const progress = questProgress[q.id] || 0;
+                const status = activeQuest === q.id ? ' [ACTIVE]' : '';
+                log(`${q.name}${status}: ${q.desc} (${progress}/${q.target})`, 'info');
+            });
+            log(`Type acceptQuest(id) to take a quest`, 'info');
+        }
+        
+        window.acceptQuest = function(qId) {
+            const quest = quests.find(q => q.id === qId);
+            if (!quest) return;
+            activeQuest = qId;
+            questProgress[qId] = questProgress[qId] || 0;
+            log(`<span class="success">Quest accepted: ${quest.name}!</span>`, 'success');
+        }
+        
+        function updateQuestProgress() {
+            if (!activeQuest) return;
+            const quest = quests.find(q => q.id === activeQuest);
+            if (!quest) return;
+            
+            if (quest.type === 'kills') {
+                questProgress[activeQuest] = player.kills;
+            } else if (quest.type === 'gold') {
+                questProgress[activeQuest] = player.gold;
+            }
+            
+            if (questProgress[activeQuest] >= quest.target) {
+                log(`<span class="success">🎯 Quest Complete: ${quest.name}!</span>`, 'loot');
+                activeQuest = null;
+            }
+        }
+        
+        // Initialize
+        updateUI();
+    </script>
+</body>
 </html>

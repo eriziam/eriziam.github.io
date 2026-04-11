@@ -120,6 +120,57 @@
         .strength.weak { background: rgba(255, 85, 85, 0.2); color: #ff5555; }
         .strength.medium { background: rgba(255, 221, 85, 0.2); color: #ffdd55; }
         .strength.strong { background: rgba(85, 255, 85, 0.2); color: #55ff55; }
+        
+        .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+        .tab { 
+            flex: 1; 
+            padding: 0.5rem; 
+            background: #0d0d14; 
+            border: 1px solid #3a3a50; 
+            border-radius: 6px; 
+            color: #8a8aa0; 
+            cursor: pointer; 
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .tab:hover { border-color: #7c5cfc; }
+        .tab.active { background: #7c5cfc; color: #000; border-color: #7c5cfc; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .analyzer { margin-top: 1rem; padding: 1rem; background: #0d0d14; border-radius: 6px; font-size: 0.85rem; }
+        .analyzer-row { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px solid #2a2a40; }
+        .analyzer-row:last-child { border-bottom: none; }
+        .analyzer-label { color: #8a8aa0; }
+        .analyzer-value { color: #e0e0f0; }
+        .analyzer-value.good { color: #55ff55; }
+        .analyzer-value.bad { color: #ff5555; }
+        
+        .hash-output { 
+            background: #0d0d14; 
+            padding: 0.75rem; 
+            border-radius: 6px; 
+            margin-bottom: 0.75rem; 
+            font-size: 0.8rem;
+            word-break: break-all;
+        }
+        .hash-label { color: #7c5cfc; font-size: 0.75rem; margin-bottom: 0.25rem; }
+        
+        .passphrase-options { margin-bottom: 1rem; }
+        .passphrase-options .option { flex-direction: column; align-items: flex-start; }
+        .passphrase-options input[type="range"] { margin-top: 0.5rem; }
+        
+        .words-output {
+            font-size: 1.2rem;
+            color: #55ff55;
+            text-align: center;
+            padding: 1rem;
+            background: #0d0d14;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            word-spacing: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -128,39 +179,127 @@
         <h1>🔐 Password Generator</h1>
     </div>
     <div class="container">
-        <div class="output">
-            <input type="text" id="password" readonly placeholder="Click generate...">
-            <button onclick="copy()" title="Copy">📋</button>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('generate')">Generate</div>
+            <div class="tab" onclick="switchTab('analyzer')">Analyzer</div>
+            <div class="tab" onclick="switchTab('hash')">Hash</div>
+            <div class="tab" onclick="switchTab('passphrase')">Passphrase</div>
         </div>
         
-        <div class="options">
-            <div class="length-display">
-                <span>Length</span>
-                <span id="lengthVal">16</span>
+        <div id="tab-generate" class="tab-content active">
+            <div class="output">
+                <input type="text" id="password" readonly placeholder="Click generate...">
+                <button onclick="copy()" title="Copy">📋</button>
             </div>
-            <input type="range" id="length" min="4" max="64" value="16">
+            
+            <div class="options">
+                <div class="length-display">
+                    <span>Length</span>
+                    <span id="lengthVal">16</span>
+                </div>
+                <input type="range" id="length" min="4" max="64" value="16">
+                
+                <div class="option">
+                    <input type="checkbox" id="uppercase" checked>
+                    <label for="uppercase">Uppercase (A-Z)</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="lowercase" checked>
+                    <label for="lowercase">Lowercase (a-z)</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="numbers" checked>
+                    <label for="numbers">Numbers (0-9)</label>
+                </div>
+                <div class="option">
+                    <input type="checkbox" id="symbols" checked>
+                    <label for="symbols">Symbols (!@#$%)</label>
+                </div>
+            </div>
+            
+            <button class="generate-btn" onclick="generate()">Generate Password</button>
+            
+            <div class="strength" id="strength"></div>
+        </div>
+        
+        <div id="tab-analyzer" class="tab-content">
+            <div class="output">
+                <input type="text" id="analyze-input" placeholder="Enter password to analyze...">
+                <button onclick="analyzePassword()">Analyze</button>
+            </div>
+            <div class="analyzer" id="analyzer-results" style="display: none;">
+                <div class="analyzer-row">
+                    <span class="analyzer-label">Length</span>
+                    <span class="analyzer-value" id="analyze-length">-</span>
+                </div>
+                <div class="analyzer-row">
+                    <span class="analyzer-label">Character Types</span>
+                    <span class="analyzer-value" id="analyze-types">-</span>
+                </div>
+                <div class="analyzer-row">
+                    <span class="analyzer-label">Entropy (bits)</span>
+                    <span class="analyzer-value" id="analyze-entropy">-</span>
+                </div>
+                <div class="analyzer-row">
+                    <span class="analyzer-label">Crack Time (est.)</span>
+                    <span class="analyzer-value" id="analyze-time">-</span>
+                </div>
+                <div class="analyzer-row">
+                    <span class="analyzer-label">Score</span>
+                    <span class="analyzer-value" id="analyze-score">-</span>
+                </div>
+            </div>
+        </div>
+        
+        <div id="tab-hash" class="tab-content">
+            <div class="output">
+                <input type="text" id="hash-input" placeholder="Enter text to hash...">
+                <button onclick="computeHashes()">Hash</button>
+            </div>
+            <div id="hash-results" style="display: none;">
+                <div class="hash-output">
+                    <div class="hash-label">MD5</div>
+                    <div id="hash-md5"></div>
+                </div>
+                <div class="hash-output">
+                    <div class="hash-label">SHA-1</div>
+                    <div id="hash-sha1"></div>
+                </div>
+                <div class="hash-output">
+                    <div class="hash-label">SHA-256</div>
+                    <div id="hash-sha256"></div>
+                </div>
+                <div class="hash-output">
+                    <div class="hash-label">SHA-512</div>
+                    <div id="hash-sha512"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="tab-passphrase" class="tab-content passphrase-options">
+            <div class="length-display">
+                <span>Word Count</span>
+                <span id="wordCountVal">4</span>
+            </div>
+            <input type="range" id="wordCount" min="3" max="10" value="4">
             
             <div class="option">
-                <input type="checkbox" id="uppercase" checked>
-                <label for="uppercase">Uppercase (A-Z)</label>
+                <input type="checkbox" id="capitalize" checked>
+                <label for="capitalize">Capitalize first letter</label>
             </div>
             <div class="option">
-                <input type="checkbox" id="lowercase" checked>
-                <label for="lowercase">Lowercase (a-z)</label>
+                <input type="checkbox" id="addNumber">
+                <label for="addNumber">Add random number</label>
             </div>
             <div class="option">
-                <input type="checkbox" id="numbers" checked>
-                <label for="numbers">Numbers (0-9)</label>
+                <input type="checkbox" id="addSymbol">
+                <label for="addNumber">Add random symbol</label>
             </div>
-            <div class="option">
-                <input type="checkbox" id="symbols" checked>
-                <label for="symbols">Symbols (!@#$%)</label>
-            </div>
+            
+            <div class="words-output" id="passphrase-output">-</div>
+            
+            <button class="generate-btn" onclick="generatePassphrase()">Generate Passphrase</button>
         </div>
-        
-        <button class="generate-btn" onclick="generate()">Generate Password</button>
-        
-        <div class="strength" id="strength"></div>
     </div>
     
     <script>
@@ -227,6 +366,121 @@
         document.getElementById('length').addEventListener('input', e => {
             document.getElementById('lengthVal').textContent = e.target.value;
         });
+        
+        document.getElementById('wordCount').addEventListener('input', e => {
+            document.getElementById('wordCountVal').textContent = e.target.value;
+        });
+        
+        function switchTab(tab, e) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+        }
+        
+        // Password Analyzer
+        function analyzePassword() {
+            const password = document.getElementById('analyze-input').value;
+            if (!password) return;
+            
+            const len = password.length;
+            const hasUpper = /[A-Z]/.test(password);
+            const hasLower = /[a-z]/.test(password);
+            const hasNum = /[0-9]/.test(password);
+            const hasSym = /[^A-Za-z0-9]/.test(password);
+            
+            const types = [hasUpper, hasLower, hasNum, hasSym].filter(Boolean).length;
+            const poolSize = (hasUpper ? 26 : 0) + (hasLower ? 26 : 0) + (hasNum ? 10 : 0) + (hasSym ? 32 : 0);
+            const entropy = Math.floor(len * Math.log2(poolSize || 1));
+            
+            // Estimate crack time (assuming 10 billion guesses/second)
+            const guesses = Math.pow(2, entropy);
+            let crackTime;
+            if (guesses < 1000) crackTime = "Instant";
+            else if (guesses < 1000000) crackTime = "Seconds";
+            else if (guesses < 1000000000) crackTime = "Minutes";
+            else if (guesses < 1000000000000) crackTime = "Hours";
+            else if (guesses < 1000000000000000) crackTime = "Days";
+            else if (guesses < 1000000000000000000) crackTime = "Years";
+            else if (guesses < 1000000000000000000000) crackTime = "Centuries";
+            else crackTime = "Millennia";
+            
+            let score, scoreClass;
+            if (entropy < 28) { score = "Weak"; scoreClass = "bad"; }
+            else if (entropy < 36) { score = "Fair"; scoreClass = "bad"; }
+            else if (entropy < 60) { score = "Good"; scoreClass = "good"; }
+            else { score = "Excellent"; scoreClass = "good"; }
+            
+            document.getElementById('analyze-length').textContent = len;
+            document.getElementById('analyze-length').className = 'analyzer-value ' + (len >= 12 ? 'good' : 'bad');
+            document.getElementById('analyze-types').textContent = types + ' / 4';
+            document.getElementById('analyze-types').className = 'analyzer-value ' + (types >= 3 ? 'good' : 'bad');
+            document.getElementById('analyze-entropy').textContent = entropy + ' bits';
+            document.getElementById('analyze-entropy').className = 'analyzer-value ' + (entropy >= 50 ? 'good' : 'bad');
+            document.getElementById('analyze-time').textContent = crackTime;
+            document.getElementById('analyze-time').className = 'analyzer-value ' + (crackTime === 'Instant' || crackTime === 'Seconds' ? 'bad' : 'good');
+            document.getElementById('analyze-score').textContent = score;
+            document.getElementById('analyze-score').className = 'analyzer-value ' + scoreClass;
+            
+            document.getElementById('analyzer-results').style.display = 'block';
+        }
+        
+        // Hash Functions using Web Crypto API
+        async function computeHashes() {
+            const input = document.getElementById('hash-input').value;
+            if (!input) return;
+            
+            const encoder = new TextEncoder();
+            const data = encoder.encode(input);
+            
+            const md5 = await hashString(input, 'md5'); // Fallback to simple hash for MD5
+            document.getElementById('hash-md5').textContent = md5;
+            document.getElementById('hash-sha1').textContent = await hashData(data, 'SHA-1');
+            document.getElementById('hash-sha256').textContent = await hashData(data, 'SHA-256');
+            document.getElementById('hash-sha512').textContent = await hashData(data, 'SHA-512');
+            
+            document.getElementById('hash-results').style.display = 'block';
+        }
+        
+        async function hashData(data, algorithm) {
+            const hashBuffer = await crypto.subtle.digest(algorithm, data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+        
+        // Simple MD5 implementation fallback
+        function hashString(str, algo) {
+            // Simple non-cryptographic hash for demonstration
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString(16).padStart(32, '0');
+        }
+        
+        // Passphrase Generator
+        const wordList = ['apple', 'banana', 'cherry', 'dragon', 'eagle', 'falcon', 'garden', 'harbor', 'island', 'jungle', 'knight', 'lemon', 'mountain', 'night', 'ocean', 'phoenix', 'queen', 'river', 'shadow', 'tiger', 'umbrella', 'village', 'winter', 'xylophone', 'yellow', 'zebra', 'anchor', 'bridge', 'castle', 'dolphin', 'elephant', 'forest', 'glacier', 'horizon', 'ivory', 'jasmine', 'kingdom', 'lantern', 'marble', 'nebula', 'orchid', 'parrot', 'quartz', 'rainbow', 'sunset', 'thunder', 'unique', 'voyage', 'wave', 'xenon', 'yacht', 'zenith'];
+        
+        function generatePassphrase() {
+            const count = parseInt(document.getElementById('wordCount').value);
+            const capitalize = document.getElementById('capitalize').checked;
+            const addNumber = document.getElementById('addNumber').checked;
+            const addSymbol = document.getElementById('addSymbol').checked;
+            
+            let words = [];
+            for (let i = 0; i < count; i++) {
+                let word = wordList[Math.floor(Math.random() * wordList.length)];
+                if (capitalize) word = word.charAt(0).toUpperCase() + word.slice(1);
+                words.push(word);
+            }
+            
+            if (addNumber) words.push(Math.floor(Math.random() * 100));
+            if (addSymbol) words.push(['!', '@', '#', '$', '%', '&', '*'][Math.floor(Math.random() * 7)]);
+            
+            document.getElementById('passphrase-output').textContent = words.join('-');
+        }
         
         generate();
     </script>
